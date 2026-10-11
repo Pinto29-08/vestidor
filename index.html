@@ -1,0 +1,1950 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Sube fotos de tu ropa y Vestidor te dice qué combinaciones elegantes puedes armar.">
+<meta name="theme-color" content="#F2F0F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#151317" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vestidor">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<script>window.__VESTIDOR_PWA__=true</script>
+<title>Vestidor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Jost:wght@400;500;600&display=swap">
+<style>
+/* Layout: revista de bolsillo. Mancheta fija arriba, una columna de contenido (máx. 760px), barra de pestañas abajo.
+   Las prendas son fichas cuadradas; cada look es un tablero tipo flat-lay con su nota en numerales Bodoni. */
+:root{
+  --bg:#F2F0F3; --surface:#FFFFFF; --sunk:#E8E4EA; --ink:#1C1820; --muted:#6A6371; --line:#DCD6DF;
+  --accent:#7A1E3A; --accent-ink:#FFFFFF; --accent-soft:#F4E3E8;
+  --gold:#8A6A22; --good:#2B6E4E; --warn:#9A5716; --scrim:rgba(20,14,22,.46); --tile:#FFFFFF;
+  --shadow:0 1px 2px rgba(28,24,32,.06),0 10px 28px rgba(28,24,32,.08);
+  --f-display:"Bodoni Moda","Bodoni 72",Didot,"Bodoni MT","Times New Roman",serif;
+  --f-body:"Jost",Futura,"Avenir Next","Century Gothic","Segoe UI",system-ui,sans-serif;
+  --tab-h:62px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151317; --surface:#1F1C22; --sunk:#2A262E; --ink:#EFEBF1; --muted:#A79FAD; --line:#38323D;
+    --accent:#E8899F; --accent-ink:#260F18; --accent-soft:#3B2129;
+    --gold:#D8B460; --good:#78C9A0; --warn:#E6A65C; --scrim:rgba(0,0,0,.62); --tile:#3C3742; --tile:#3C3742;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151317; --surface:#1F1C22; --sunk:#2A262E; --ink:#EFEBF1; --muted:#A79FAD; --line:#38323D;
+  --accent:#E8899F; --accent-ink:#260F18; --accent-soft:#3B2129;
+  --gold:#D8B460; --good:#78C9A0; --warn:#E6A65C; --scrim:rgba(0,0,0,.62);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body.lock{overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+h1,h2,h3{font-family:var(--f-display);font-weight:500;text-wrap:balance;margin:0;letter-spacing:-.005em}
+p{margin:0}
+.vh{position:absolute!important;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.eyebrow{font:500 11px/1.25 var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+/* Mancheta */
+.mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  .mast{background:color-mix(in srgb,var(--bg) 84%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+}
+.mast-in{max-width:760px;margin:0 auto;padding:11px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wordmark{font-family:var(--f-display);font-weight:500;font-size:25px;letter-spacing:.22em;text-transform:uppercase;line-height:1;font-variation-settings:"opsz" 96;white-space:nowrap}
+.issue{font:500 10.5px/1.3 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:right}
+
+/* Estructura */
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:18px calc(var(--tab-h) + 40px + env(safe-area-inset-bottom,0px))}
+.view{display:grid;gap:20px;min-width:0}
+.v-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.v-head h2{font-size:34px;line-height:1.02}
+.v-head .eyebrow{margin-bottom:6px}
+.sec{display:grid;gap:12px;min-width:0}
+.sec > h2{font-size:25px;line-height:1.1}
+.sec > p{max-width:62ch}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:500;font-size:15px;line-height:1.1;white-space:nowrap;transition:transform .12s ease,background .15s ease}
+.btn:active{transform:scale(.97)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn-ink{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn-ghost{background:transparent}
+.btn-sm{min-height:38px;padding:0 14px;font-size:14px}
+.btn-block{width:100%}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn-danger{color:var(--accent);border-color:var(--accent)}
+.btn-danger.armed{background:var(--accent);color:var(--accent-ink)}
+.link{background:none;border:0;padding:0;color:var(--accent);font-weight:500;text-decoration:underline;text-underline-offset:3px;font-size:14px}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:0;background:var(--sunk);display:grid;place-items:center;color:var(--ink);flex:none}
+.icon-btn svg{width:18px;height:18px}
+
+/* Chips y segmentados */
+.chips{display:flex;gap:8px;overflow-x:auto;margin-inline:-16px;padding:2px 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chips.flow{flex-wrap:wrap;overflow:visible;margin-inline:0;padding-inline:0}
+.chip{flex:none;display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px;font-weight:500;line-height:1}
+.chip .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip .dot{width:14px;height:14px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip[aria-pressed="true"] .n{color:inherit;opacity:.7}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--sunk);border-radius:12px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;min-height:36px;border-radius:9px;font-size:14px;font-weight:500;color:var(--muted);padding:0 6px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+
+/* Clóset */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(102px,1fr));gap:16px 12px}
+.g-card{display:grid;gap:7px;align-content:start;text-align:left;background:none;border:0;padding:0;min-width:0}
+.g-img{position:relative;display:block;aspect-ratio:1;width:100%;max-width:100%;border-radius:14px;overflow:hidden;background:var(--sunk)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .g-img{background:var(--tile)}}
+:root[data-theme="dark"] .g-img{background:var(--tile)}
+.g-img img{width:100%;height:100%;object-fit:cover;display:block}
+.g-img svg{display:block;width:100%;height:100%;padding:12%}
+.g-name{font-size:13px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tag-sample{position:absolute;top:6px;left:6px;font:600 9px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;background:var(--surface);color:var(--muted);padding:4px 6px;border-radius:999px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:10px;min-width:0}
+.note.soft{background:var(--accent-soft);border-color:transparent}
+.note h3{font-size:21px;line-height:1.15}
+.note .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.empty{display:grid;justify-items:center;text-align:center;gap:12px;padding:32px 18px;background:var(--surface);border:1px dashed var(--line);border-radius:18px}
+.empty svg.big{width:56px;height:56px;color:var(--muted)}
+.empty h3{font-size:24px}
+.empty p{max-width:40ch;color:var(--muted)}
+
+/* Looks */
+.looks{display:grid;gap:18px}
+@media (min-width:700px){.looks{grid-template-columns:1fr 1fr;align-items:start}}
+.look{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;min-width:0;animation:rise .35s ease both}
+.board{display:grid;grid-template-columns:3fr 2fr;gap:8px;padding:10px;background:var(--sunk)}
+.board .col{display:grid;gap:8px;align-content:start;min-width:0}
+.tile{position:relative;display:block;width:100%;max-width:100%;aspect-ratio:6/5;border:0;padding:0;border-radius:12px;overflow:hidden;background:var(--tile)}
+.tile.tall{aspect-ratio:6/10.15}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile svg{width:100%;height:100%;display:block;padding:8%}
+.tile.add{border:1.5px dashed var(--line);background:transparent;display:grid;place-items:center;align-content:center;gap:2px;color:var(--muted);font-size:12px;font-weight:500}
+.tile.add svg{width:22px;height:22px;padding:0}
+.accs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.accs .tile{border-radius:10px;aspect-ratio:1}
+.accs .tile svg{padding:12%}
+.look-body{padding:16px;display:grid;gap:12px}
+.look-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.look-title{font-size:23px;line-height:1.08}
+.look-sub{margin-top:6px}
+.nota{text-align:right;flex:none}
+.nota b{display:block;font-family:var(--f-display);font-style:italic;font-weight:500;font-size:46px;line-height:.82;color:var(--accent);font-variant-numeric:lining-nums;font-variation-settings:"opsz" 96}
+.nota span{font:500 10px/1.2 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.swatches{display:flex;align-items:center}
+.swatches i{width:20px;height:20px;border-radius:50%;border:2px solid var(--surface);margin-left:-5px;box-shadow:0 0 0 1px var(--line)}
+.swatches i:first-child{margin-left:0}
+.reasons{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px;line-height:1.45}
+.reasons li{display:grid;grid-template-columns:18px 1fr;gap:8px;align-items:start}
+.reasons svg{width:16px;height:16px;margin-top:2px;color:var(--good)}
+.reasons li.w svg{color:var(--warn)}
+.tip{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:4px;font-size:14px}
+.tip .eyebrow{color:var(--gold)}
+.look-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hint{font-size:12px;color:var(--muted)}
+.ai-why{font-size:15px;line-height:1.55}
+
+/* Barra de pestañas */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--tab-h);align-items:center}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;color:var(--muted);font-size:10.5px;font-weight:500;letter-spacing:.03em;padding:6px 0;min-width:0}
+.tab svg{width:24px;height:24px}
+.tab[aria-current="page"]{color:var(--accent)}
+.tab-add{color:var(--ink)}
+.tab-add .plus{width:50px;height:50px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:var(--shadow);margin-top:-22px}
+.tab-add .plus svg{width:24px;height:24px}
+
+/* Hoja inferior */
+.sheet-wrap{position:fixed;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s ease}
+.sheet{width:100%;max-width:640px;max-height:calc(100% - 28px - env(safe-area-inset-top,0px));background:var(--bg);border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:up .3s cubic-bezier(.2,.8,.2,1)}
+@media (min-width:700px){.sheet-wrap{align-items:center}.sheet{border-radius:22px;max-height:88%}}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+.sheet-head h3{font-size:22px;line-height:1.1}
+.sheet-body{overflow-y:auto;padding:18px 16px;display:grid;gap:24px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;min-height:0}
+.sheet-foot{display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--bg)}
+.sheet-foot .btn{flex:1;min-width:0}
+.field{display:grid;gap:10px;min-width:0}
+.field > .eyebrow{color:var(--ink)}
+.err{color:var(--accent);font-size:13px;font-weight:500}
+.input{width:100%;min-width:0;min-height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:0 14px;font-size:16px}
+.input::placeholder{color:var(--muted)}
+
+.photo-drop{display:grid;place-items:center;align-content:center;gap:8px;aspect-ratio:4/3;width:100%;max-width:100%;border:1.5px dashed var(--line);border-radius:18px;background:var(--surface);text-align:center;padding:16px;cursor:pointer}
+.photo-drop svg{width:36px;height:36px;color:var(--accent)}
+.photo-drop b{font-weight:500;font-size:17px}
+.photo-prev{position:relative;border-radius:18px;overflow:hidden;background:var(--sunk);width:100%;max-width:100%;height:min(62vw,340px)}
+.photo-prev img{width:100%;height:100%;object-fit:contain;display:block;cursor:crosshair}
+.photo-prev .pick{position:absolute;width:26px;height:26px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.4);transform:translate(-50%,-50%);pointer-events:none}
+.photo-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.types{display:grid;gap:14px}
+.type-grp{display:grid;gap:8px}
+.type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}
+.type-opt{display:grid;justify-items:center;align-content:start;gap:4px;padding:8px 4px 9px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-size:12px;line-height:1.2;text-align:center;min-width:0}
+.type-opt svg{width:42px;height:42px}
+.type-opt[aria-pressed="true"]{border-color:var(--ink);background:var(--accent-soft)}
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:10px}
+.sw{aspect-ratio:1;width:100%;max-width:100%;border-radius:50%;border:0;padding:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16)}
+.sw.metal{background-image:linear-gradient(135deg,rgba(255,255,255,.6),rgba(255,255,255,0) 60%)}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + 18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:12px;font-size:14px;width:max-content;max-width:calc(100% - 32px);box-shadow:var(--shadow);animation:rise .25s ease}
+
+/* Ideas */
+.stat{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.stat .big{font-family:var(--f-display);font-size:72px;line-height:.82;font-style:italic;color:var(--accent);font-variant-numeric:lining-nums;font-variation-settings:"opsz" 96}
+.stat p{max-width:28ch;padding-bottom:4px}
+.occ-tbl{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.occ-tbl div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 8px;display:grid;gap:2px;align-content:start;min-width:0}
+.occ-tbl b{font-family:var(--f-display);font-size:24px;font-weight:500;line-height:1.05;font-variant-numeric:lining-nums tabular-nums}
+.occ-tbl span{font-size:11.5px;line-height:1.25;color:var(--muted)}
+@media (min-width:560px){.occ-tbl b{font-size:30px}.occ-tbl span{font-size:12.5px}.occ-tbl div{padding:10px 12px}}
+.buys{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:4px 14px}
+.buy{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.buy:first-child{border-top:0}
+.buy .g-img{border-radius:12px}
+.buy .g-img svg{padding:10%}
+.buy b{font-weight:500;display:block}
+.buy p{font-size:13px;color:var(--muted);line-height:1.4}
+.badge{font:600 12px/1 var(--f-body);background:var(--accent-soft);color:var(--accent);padding:7px 9px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.palette-bar{display:flex;height:22px;border-radius:999px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
+.palette-bar i{display:block;height:100%;min-width:3px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:13px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.rules{display:grid;gap:10px}
+@media (min-width:620px){.rules{grid-template-columns:1fr 1fr}}
+.rule{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:4px;align-content:start}
+.rule h3{font-size:18px;line-height:1.2}
+.rule p{font-size:14px;color:var(--muted)}
+.rule .sws{display:flex;gap:4px;margin-bottom:4px}
+.rule .sws i{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:12px}
+
+/* Estilista */
+.stylist{display:grid;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.stylist form{display:flex;gap:8px}
+.stylist h3{font-size:20px}
+.thinking{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite}
+
+.set-list{display:grid;gap:12px}
+.steps{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px}
+
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{transform:translateY(8px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="mast-in">
+    <h1 class="wordmark">Vestidor</h1>
+    <p class="issue" id="issue">Tu estilista de bolsillo</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="v-closet" class="view" aria-label="Tu clóset"></section>
+  <section id="v-combine" class="view" aria-label="Combinar" hidden></section>
+  <section id="v-ideas" class="view" aria-label="Ideas" hidden></section>
+  <section id="v-settings" class="view" aria-label="Ajustes" hidden></section>
+</main>
+
+<nav class="tabbar" aria-label="Secciones">
+  <div class="tabbar-in">
+    <button class="tab" data-view="closet" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.6V6.7c1.1-.5 2-1.2 2-2.5a2 2 0 0 0-4 0"/><path d="M12 7.6l8.3 6.1c.9.7.4 2.1-.7 2.1H4.4c-1.1 0-1.6-1.4-.7-2.1z"/></svg>Clóset</button>
+    <button class="tab" data-view="combine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M10 3.5l1.7 4.6 4.6 1.7-4.6 1.7L10 16.1l-1.7-4.6-4.6-1.7 4.6-1.7z"/><path d="M18 13.5l.8 2.1 2.1.8-2.1.8-.8 2.1-.8-2.1-2.1-.8 2.1-.8z"/></svg>Combinar</button>
+    <button class="tab tab-add" id="tab-add" aria-label="Agregar prenda"><span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>Agregar</button>
+    <button class="tab" data-view="ideas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 18h5.6M10.2 21h3.6"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>Ideas</button>
+    <button class="tab" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>Ajustes</button>
+  </div>
+</nav>
+
+<input type="file" id="import-input" class="vh" accept="application/json,.json" tabindex="-1" aria-hidden="true">
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Utilidades ---------- */
+const PWA = !!window.__VESTIDOR_PWA__;
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+function h(tag, attrs){
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs){
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'html') e.innerHTML = v;
+    else if (k.slice(0,2) === 'on' && typeof v === 'function') e.addEventListener(k.slice(2).toLowerCase(), v);
+    else e.setAttribute(k, v === true ? '' : String(v));
+  }
+  for (let i = 2; i < arguments.length; i++) add(e, arguments[i]);
+  return e;
+}
+function add(e, kid){
+  if (kid == null || kid === false) return;
+  if (Array.isArray(kid)) { kid.forEach(k => add(e, k)); return; }
+  e.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+function hashStr(s){ let x = 2166136261; for (let i = 0; i < s.length; i++){ x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; }
+const fmt1 = n => (Math.round(n * 10) / 10).toLocaleString('es', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+const tick = () => new Promise(r => setTimeout(r, 0));
+const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+function daysAgo(iso){ const [y,m,d] = iso.split('-').map(Number); const then = new Date(y, m-1, d); const now = new Date(); now.setHours(0,0,0,0); return Math.round((now - then) / 864e5); }
+
+const ICONS = {
+  check: '<path d="M5 12.5l4.2 4L19 7"/>',
+  warn: '<path d="M12 8v5M12 16.5v.5"/><circle cx="12" cy="12" r="9"/>',
+  heart: '<path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.4 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  camera: '<path d="M4 8.5h3.2l1.8-2.5h6l1.8 2.5H20V19H4z"/><circle cx="12" cy="13.3" r="3.4"/>',
+  shuffle: '<path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.7M20 4v4.7h-4.7M20 12a8 8 0 0 1-13.7 5.6L4 15.3M4 20v-4.7h4.7"/>',
+  spark: '<path d="M10 3.5l1.7 4.6 4.6 1.7-4.6 1.7L10 16.1l-1.7-4.6-4.6-1.7 4.6-1.7z"/><path d="M18 13.5l.8 2.1 2.1.8-2.1.8-.8 2.1-.8-2.1-2.1-.8 2.1-.8z"/>',
+  hanger: '<path d="M12 7.6V6.7c1.1-.5 2-1.2 2-2.5a2 2 0 0 0-4 0"/><path d="M12 7.6l8.3 6.1c.9.7.4 2.1-.7 2.1H4.4c-1.1 0-1.6-1.4-.7-2.1z"/>',
+  calendar: '<rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
+  share: '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v7h14v-7"/>',
+  download: '<path d="M12 4v11M8 11l4 4 4-4"/><path d="M5 19h14"/>',
+  upload: '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 19h14"/>'
+};
+function icon(name, cls){
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor');
+  s.setAttribute('stroke-width', '1.8'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round');
+  s.setAttribute('aria-hidden', 'true'); if (cls) s.setAttribute('class', cls);
+  s.innerHTML = ICONS[name] || '';
+  return s;
+}
+
+/* ---------- Color ---------- */
+function hexRgb(hex){ const n = parseInt(hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function rgbHsl(rgb){
+  let [r,g,b] = rgb.map(v => v / 255);
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b); let hh = 0, s = 0; const l = (mx + mn) / 2;
+  if (mx !== mn){ const d = mx - mn; s = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
+    if (mx === r) hh = (g - b) / d + (g < b ? 6 : 0); else if (mx === g) hh = (b - r) / d + 2; else hh = (r - g) / d + 4; hh *= 60; }
+  return [hh, s, l];
+}
+function rgbLab(rgb){
+  const f = c => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const R = f(rgb[0]), G = f(rgb[1]), B = f(rgb[2]);
+  let x = (R*0.4124 + G*0.3576 + B*0.1805) / 0.95047, y = (R*0.2126 + G*0.7152 + B*0.0722), z = (R*0.0193 + G*0.1192 + B*0.9505) / 1.08883;
+  const g3 = t => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+  x = g3(x); y = g3(y); z = g3(z);
+  return [116*y - 16, 500*(x - y), 200*(y - z)];
+}
+const dE = (a, b) => Math.hypot(a[0]-b[0], a[1]-b[1], a[2]-b[2]);
+function shade(hex, amt){
+  const rgb = hexRgb(hex), t = amt < 0 ? 0 : 255, p = Math.abs(amt);
+  return '#' + rgb.map(c => Math.round((t - c) * p + c).toString(16).padStart(2, '0')).join('');
+}
+const hueDist = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+
+const PALETTE = [
+  {k:'negro', n:'Negro', hex:'#1D1C20', kind:'neutral', adj:['negro','negra','negros','negras']},
+  {k:'carbon', n:'Gris carbón', hex:'#4A4C52', kind:'neutral', adj:'gris carbón'},
+  {k:'gris', n:'Gris', hex:'#8D8F95', kind:'neutral', adj:['gris','gris','grises','grises']},
+  {k:'gris_claro', n:'Gris claro', hex:'#C9CACE', kind:'neutral', adj:'gris claro'},
+  {k:'blanco', n:'Blanco', hex:'#F7F6F3', kind:'neutral', adj:['blanco','blanca','blancos','blancas']},
+  {k:'crema', n:'Crema', hex:'#ECE3CF', kind:'neutral', adj:'crema'},
+  {k:'beige', n:'Beige', hex:'#D5C0A0', kind:'neutral', adj:'beige'},
+  {k:'caqui', n:'Caqui', hex:'#B7A880', kind:'neutral', adj:'caqui'},
+  {k:'camel', n:'Camel', hex:'#B3854E', kind:'neutral', adj:'camel'},
+  {k:'cafe', n:'Café', hex:'#5C3F2D', kind:'neutral', adj:'café'},
+  {k:'marino', n:'Azul marino', hex:'#1F2A45', kind:'neutral', adj:'azul marino'},
+  {k:'mezclilla', n:'Mezclilla', hex:'#4B6688', kind:'neutral', adj:'de mezclilla'},
+  {k:'oliva', n:'Verde oliva', hex:'#626538', kind:'earth', adj:'verde oliva'},
+  {k:'vino', n:'Vino', hex:'#6B2131', kind:'earth', adj:'vino'},
+  {k:'mostaza', n:'Mostaza', hex:'#C79A2D', kind:'earth', adj:'mostaza'},
+  {k:'terracota', n:'Terracota', hex:'#B25B3D', kind:'earth', adj:'terracota'},
+  {k:'rojo', n:'Rojo', hex:'#C42B31', kind:'color', adj:['rojo','roja','rojos','rojas']},
+  {k:'coral', n:'Coral', hex:'#EE8A72', kind:'color', adj:'coral'},
+  {k:'naranja', n:'Naranja', hex:'#E0722C', kind:'color', adj:'naranja'},
+  {k:'amarillo', n:'Amarillo', hex:'#ECC63F', kind:'color', adj:['amarillo','amarilla','amarillos','amarillas']},
+  {k:'rosa', n:'Rosa', hex:'#EAA6BA', kind:'color', adj:'rosa'},
+  {k:'fucsia', n:'Fucsia', hex:'#C62B7D', kind:'color', adj:'fucsia'},
+  {k:'lila', n:'Lila', hex:'#B8A6DA', kind:'color', adj:'lila'},
+  {k:'morado', n:'Morado', hex:'#5E3082', kind:'color', adj:['morado','morada','morados','moradas']},
+  {k:'celeste', n:'Celeste', hex:'#A4C9EA', kind:'color', adj:['celeste','celeste','celestes','celestes']},
+  {k:'azul', n:'Azul rey', hex:'#2A48B6', kind:'color', adj:'azul rey'},
+  {k:'turquesa', n:'Turquesa', hex:'#27A3A2', kind:'color', adj:'turquesa'},
+  {k:'menta', n:'Menta', hex:'#AADCC6', kind:'color', adj:'menta'},
+  {k:'verde', n:'Verde', hex:'#2F8B50', kind:'color', adj:['verde','verde','verdes','verdes']},
+  {k:'esmeralda', n:'Esmeralda', hex:'#0F6A51', kind:'color', adj:'esmeralda'},
+  {k:'dorado', n:'Dorado', hex:'#C9A54C', kind:'metal', adj:['dorado','dorada','dorados','doradas']},
+  {k:'plateado', n:'Plateado', hex:'#B9BCC3', kind:'metal', adj:['plateado','plateada','plateados','plateadas']}
+];
+const PAL = {};
+PALETTE.forEach(c => { c.rgb = hexRgb(c.hex); c.hsl = rgbHsl(c.rgb); c.lab = rgbLab(c.rgb); PAL[c.k] = c; });
+const isChromK = k => { const c = PAL[k]; return !!c && (c.kind === 'color' || c.kind === 'earth'); };
+const isVivid = c => c.kind === 'color' && c.hsl[1] > 0.55 && c.hsl[2] > 0.3 && c.hsl[2] < 0.68;
+const cn = k => (PAL[k] ? PAL[k].n : '').toLowerCase();
+const pairKey = (a, b) => a < b ? a + '|' + b : b + '|' + a;
+const leather = k => k === 'negro' ? 'n' : (k === 'cafe' || k === 'camel') ? 'c' : null;
+function nearestColor(lab, allowMetal){
+  let best = null, bd = 1e9;
+  for (const c of PALETTE){ if (!allowMetal && c.kind === 'metal') continue; const d = dE(lab, c.lab); if (d < bd){ bd = d; best = c.k; } }
+  return best;
+}
+
+/* ---------- Catálogo ---------- */
+const TYPES = {
+  camiseta:   {n:'Camiseta', slot:'top', g:'f', sex:'u', f:[1,3], season:'all'},
+  camisa:     {n:'Camisa', slot:'top', g:'f', sex:'u', f:[2,5], season:'all', tuck:true},
+  polo:       {n:'Polo', slot:'top', g:'m', sex:'u', f:[2,3], season:'all', tuck:true},
+  blusa:      {n:'Blusa', slot:'top', g:'f', sex:'m', f:[2,5], season:'all'},
+  toptank:    {n:'Top', pick:'Top de tirantes', slot:'top', g:'m', sex:'m', f:[1,3], season:'hot'},
+  sueter:     {n:'Suéter', slot:'top', g:'m', sex:'u', f:[2,4], season:'cold', warm:true},
+  sudadera:   {n:'Sudadera', slot:'top', g:'f', sex:'u', f:[1,2], season:'cold', warm:true},
+  blazer:     {n:'Blazer', pick:'Blazer / saco', slot:'outer', g:'m', sex:'u', f:[3,5], season:'all'},
+  chaqueta:   {n:'Chaqueta', slot:'outer', g:'f', sex:'u', f:[1,3], season:'all'},
+  cardigan:   {n:'Cárdigan', slot:'outer', g:'m', sex:'u', f:[2,4], season:'all'},
+  abrigo:     {n:'Abrigo', slot:'outer', g:'m', sex:'u', f:[3,5], season:'cold'},
+  jeans:      {n:'Jeans', slot:'bottom', g:'m', p:1, sex:'u', f:[1,3], season:'all', loops:true},
+  pantalon:   {n:'Pantalón de vestir', slot:'bottom', g:'m', sex:'u', f:[3,5], season:'all', loops:true},
+  chino:      {n:'Pantalón chino', slot:'bottom', g:'m', sex:'u', f:[2,4], season:'all', loops:true},
+  falda:      {n:'Falda', slot:'bottom', g:'f', sex:'m', f:[2,5], season:'all'},
+  short:      {n:'Short', slot:'bottom', g:'m', sex:'u', f:[1,2], season:'hot', loops:true},
+  jogger:     {n:'Jogger', pick:'Jogger / deportivo', slot:'bottom', g:'m', sex:'u', f:[1,1], season:'all'},
+  vestido:    {n:'Vestido', slot:'dress', g:'m', sex:'m', f:[2,5], season:'all'},
+  enterizo:   {n:'Enterizo', slot:'dress', g:'m', sex:'m', f:[2,4], season:'all'},
+  zapatos:    {n:'Zapatos de vestir', slot:'shoes', g:'m', p:1, sex:'u', f:[4,5], season:'all', leather:true},
+  mocasines:  {n:'Mocasines', slot:'shoes', g:'m', p:1, sex:'u', f:[3,4], season:'all', leather:true},
+  tenis:      {n:'Tenis', slot:'shoes', g:'m', p:1, sex:'u', f:[1,3], season:'all'},
+  botines:    {n:'Botines', slot:'shoes', g:'m', p:1, sex:'u', f:[2,4], season:'cold', leather:true},
+  tacones:    {n:'Tacones', slot:'shoes', g:'m', p:1, sex:'m', f:[3,5], season:'all'},
+  bailarinas: {n:'Bailarinas', pick:'Bailarinas / flats', slot:'shoes', g:'f', p:1, sex:'m', f:[2,4], season:'all'},
+  sandalias:  {n:'Sandalias', slot:'shoes', g:'f', p:1, sex:'u', f:[1,3], season:'hot'},
+  cinturon:   {n:'Cinturón', slot:'acc', sub:'belt', g:'m', sex:'u', f:[1,5], season:'all'},
+  corbata:    {n:'Corbata', slot:'acc', sub:'tie', g:'f', sex:'h', f:[4,5], season:'all'},
+  bolso:      {n:'Bolso', pick:'Bolso / cartera', slot:'acc', sub:'bag', g:'m', sex:'m', f:[1,5], season:'all'},
+  reloj:      {n:'Reloj', slot:'acc', sub:'watch', g:'m', sex:'u', f:[1,5], season:'all'},
+  collar:     {n:'Collar', pick:'Collar / cadena', slot:'acc', sub:'jewel', g:'m', sex:'u', f:[2,5], season:'all'},
+  aretes:     {n:'Aretes', slot:'acc', sub:'jewel', g:'m', p:1, sex:'m', f:[2,5], season:'all'},
+  pulsera:    {n:'Pulsera', slot:'acc', sub:'jewel', g:'f', sex:'u', f:[1,5], season:'all'},
+  bufanda:    {n:'Bufanda', slot:'acc', sub:'scarf', g:'f', sex:'u', f:[2,4], season:'cold'},
+  gafas:      {n:'Gafas de sol', slot:'acc', sub:'eyewear', g:'f', p:1, sex:'u', f:[1,3], season:'hot'},
+  gorra:      {n:'Gorra', pick:'Gorra / sombrero', slot:'acc', sub:'hat', g:'f', sex:'u', f:[1,2], season:'all'}
+};
+const GROUPS = [['top','Arriba'],['outer','Capas'],['bottom','Abajo'],['dress','Vestidos'],['shoes','Calzado'],['acc','Accesorios']];
+const SLOT_ORDER = {top:0, outer:1, bottom:2, dress:3, shoes:4, acc:5};
+const OCC = {
+  casual:  {n:'Casual', t:2},
+  oficina: {n:'Oficina', t:4},
+  cita:    {n:'Cita o cena', t:3},
+  fiesta:  {n:'Fiesta', t:3},
+  formal:  {n:'Formal', t:5},
+  relax:   {n:'Deporte / relax', t:1}
+};
+const WEA = {calor:'Calor', templado:'Templado', frio:'Frío'};
+const SEA = {all:'Todo el año', hot:'Calor', cold:'Frío'};
+const PROF = {h:'Hombre', m:'Mujer', t:'Ambos'};
+const PAT = {liso:'Liso', rayas:'Rayas', cuadros:'Cuadros', lunares:'Lunares', floral:'Floral', animal:'Animal print', estampado:'Estampado'};
+const SHIFT = {'-1':'Más casual', '0':'Normal', '1':'Más formal'};
+
+function adjFor(colorKey, T){ const c = PAL[colorKey]; if (!c) return ''; const a = c.adj; if (typeof a === 'string') return a; return a[(T.g === 'f' ? 1 : 0) + (T.p ? 2 : 0)]; }
+function patPhrase(p, T){
+  switch (p){
+    case 'rayas': return 'a rayas'; case 'cuadros': return 'a cuadros'; case 'lunares': return 'de lunares';
+    case 'floral': return T.p ? 'florales' : 'floral'; case 'animal': return 'animal print';
+    case 'estampado': return ['estampado','estampada','estampados','estampadas'][(T.g === 'f' ? 1 : 0) + (T.p ? 2 : 0)];
+    default: return '';
+  }
+}
+function autoName(it){ const T = TYPES[it.type]; if (!T) return 'Prenda'; return [T.n, adjFor(it.color, T), patPhrase(it.pattern, T)].filter(Boolean).join(' '); }
+const itemName = it => (it.name && it.name.trim()) || autoName(it);
+function art(T, up){ const a = T.g === 'f' ? (T.p ? 'las' : 'la') : (T.p ? 'los' : 'el'); return up ? cap(a) : a; }
+const tn = T => T.n.toLowerCase();
+
+/* ---------- Reglas de estilo ---------- */
+const CLASSIC = {};
+[
+  ['marino','camel','Marino y camel','Azul marino con camel: un clásico de la sastrería.'],
+  ['marino','blanco','Marino y blanco','Azul marino y blanco: fresco e impecable.'],
+  ['negro','blanco','Blanco y negro','Blanco y negro: contraste atemporal.'],
+  ['gris','rosa','Gris y rosa','Gris con rosa: suave y moderno.'],
+  ['carbon','rosa','Gris y rosa','Gris con rosa: suave y moderno.'],
+  ['gris_claro','rosa','Gris y rosa','Gris con rosa: suave y moderno.'],
+  ['celeste','caqui','Celeste y arena','Celeste con tonos arena: luminoso y relajado.'],
+  ['celeste','beige','Celeste y arena','Celeste con tonos arena: luminoso y relajado.'],
+  ['vino','gris','Vino y gris','Vino sobre gris: elegancia sobria.'],
+  ['vino','carbon','Vino y gris','Vino sobre gris: elegancia sobria.'],
+  ['vino','gris_claro','Vino y gris','Vino sobre gris: elegancia sobria.'],
+  ['oliva','camel','Oliva y camel','Verde oliva con camel: armonía natural.'],
+  ['oliva','beige','Oliva y arena','Verde oliva con beige: armonía natural.'],
+  ['oliva','crema','Oliva y crema','Verde oliva con crema: fresco y natural.'],
+  ['mezclilla','blanco','Mezclilla y blanco','Mezclilla y blanco: el básico que nunca falla.'],
+  ['marino','vino','Marino y vino','Marino con vino: profundo y distinguido.'],
+  ['marino','mostaza','Marino y mostaza','Mostaza sobre marino: acento cálido con carácter.'],
+  ['negro','camel','Negro y camel','Negro con camel: sofisticación cálida.'],
+  ['carbon','celeste','Gris y celeste','Gris carbón con celeste: el uniforme de oficina más elegante.'],
+  ['gris','celeste','Gris y celeste','Gris con celeste: sobrio y luminoso.'],
+  ['marino','celeste','Azules en armonía','Celeste con marino: dos azules que se entienden.'],
+  ['negro','rojo','Rojo sobre negro','Rojo con negro: intensidad elegante.'],
+  ['cafe','celeste','Café y celeste','Café con celeste: contraste cálido y frío muy refinado.'],
+  ['cafe','crema','Café y crema','Café con crema: tonos tierra con luz.'],
+  ['blanco','beige','Neutros claros','Blanco y beige: luminoso y sofisticado.'],
+  ['negro','gris_claro','Escala de grises','Negro y gris claro: sobrio y moderno.'],
+  ['mezclilla','camel','Mezclilla y camel','Mezclilla con camel: casual con calidez.'],
+  ['caqui','marino','Caqui y marino','Caqui con marino: estilo náutico clásico.'],
+  ['beige','marino','Beige y marino','Beige con marino: pulcro y veraniego.'],
+  ['blanco','azul','Azul rey y blanco','Azul rey con blanco: fresco y vibrante.'],
+  ['terracota','crema','Terracota y crema','Terracota con crema: cálido y mediterráneo.'],
+  ['esmeralda','negro','Esmeralda y negro','Esmeralda sobre negro: lujo discreto.'],
+  ['lila','gris','Lila y gris','Lila con gris: delicado y actual.'],
+  ['blanco','mezclilla','Mezclilla y blanco','Mezclilla y blanco: el básico que nunca falla.']
+].forEach(([a,b,title,txt]) => { CLASSIC[pairKey(a,b)] = {title, txt}; });
+
+const NEAR = {
+  [pairKey('marino','negro')]: 'Negro y azul marino tan cerca pueden parecer un error; separa con una pieza clara.',
+  [pairKey('carbon','negro')]: 'Gris carbón y negro casi iguales se ven disparejos; sube el contraste.',
+  [pairKey('blanco','crema')]: 'Blanco junto a crema hace que uno parezca sucio; elige uno de los dos.',
+  [pairKey('beige','caqui')]: 'Beige y caqui son tan parecidos que se ven disparejos.',
+  [pairKey('beige','crema')]: 'Beige y crema tan juntos se confunden; separa con un tono más oscuro.',
+  [pairKey('cafe','negro')]: 'Café y negro juntos: en lo casual pasa, en lo formal mejor elige uno.'
+};
+const CLASH = {
+  [pairKey('rojo','verde')]: 'Rojo y verde juntos recuerdan a la Navidad; cambia uno por un neutro.'
+};
+
+function harmony(k1, k2){
+  const key = pairKey(k1, k2);
+  if (CLASH[key]) return {s:-12, txt:CLASH[key]};
+  const a = PAL[k1], b = PAL[k2], A = cap(cn(k1)), B = cn(k2);
+  const d = hueDist(a.hsl[0], b.hsl[0]);
+  const softA = a.kind === 'earth' || a.hsl[1] < 0.45 || a.hsl[2] > 0.72;
+  const softB = b.kind === 'earth' || b.hsl[1] < 0.45 || b.hsl[2] > 0.72;
+  const soft = softA || softB;
+  if (a.kind === 'earth' && b.kind === 'earth') return {s:8, txt:`${A} y ${B}: tonos tierra que se entienden solos.`};
+  if (a.hsl[2] > 0.68 && b.hsl[2] > 0.68) return {s:8, txt:`${A} y ${B}: pasteles juntos, suave y fresco.`};
+  if (d <= 40) return {s: soft ? 8 : 4, txt:`${A} y ${B} son vecinos en el círculo cromático: armonía natural.`};
+  if (d <= 90) return {s: soft ? 5 : 0, txt:`${A} y ${B} conviven bien por ser tonos cercanos.`};
+  if (d >= 130) return {s: soft ? 7 : 3, txt:`${A} y ${B} son complementarios: contraste con carácter.`};
+  if (softA && softB) return {s:2, txt:`${A} y ${B} en tonos suaves conviven sin pelear.`};
+  if (soft) return {s:-3, txt:`${A} y ${B} no terminan de combinar; un neutro entre ambos ayuda.`};
+  return {s:-10, txt:`${A} y ${B} chocan entre sí; deja uno y cambia el otro por un neutro.`};
+}
+
+/* ---------- Motor de combinaciones ---------- */
+const C = it => PAL[it.color] || PAL.gris;
+const Lk = it => C(it).lab[0];
+function itemRange(it){ const T = TYPES[it.type]; const s = it.shift || 0; return [clamp(T.f[0] + s, 1, 5), clamp(T.f[1] + s, 1, 5)]; }
+function formDist(it, t){ const [a, b] = itemRange(it); return t < a ? a - t : t > b ? t - b : 0; }
+const seasonOf = it => it.season || TYPES[it.type].season || 'all';
+function weatherPen(it, w){
+  const s = seasonOf(it), T = TYPES[it.type];
+  if (w === 'calor' && s === 'cold') return 14;
+  if (w === 'frio' && s === 'hot') return (T.slot === 'bottom' || T.slot === 'shoes') ? 16 : 10;
+  return 0;
+}
+const wornRecently = it => Array.isArray(it.worn) && it.worn.some(d => daysAgo(d) <= 2);
+function mkCtx(occ, w){ return {occ, t: OCC[occ].t, w}; }
+
+function mkR(){
+  const g = [], w = [];
+  return {
+    good(t, wt){ if (!g.some(x => x.t === t)) g.push({t, wt: wt || 1}); },
+    warn(t){ if (!w.includes(t)) w.push(t); },
+    goods(){ return g.slice().sort((a, b) => b.wt - a.wt).slice(0, 3).map(x => x.t); },
+    warns(){ return w.slice(0, 2); }
+  };
+}
+
+function scoreCore(o, ctx, R){
+  const t = ctx.t, w = ctx.w;
+  let s = 60;
+  const core = [o.top, o.bottom, o.dress, o.outer, o.shoes].filter(Boolean);
+  let worst = null, wd = 0;
+  for (const it of core){
+    const d = formDist(it, t);
+    if (d){ s -= d === 1 ? 9 : 22; if (d > wd){ wd = d; worst = it; } }
+    const p = weatherPen(it, w);
+    if (p){ s -= p; if (R){ const T = TYPES[it.type]; R.warn(`${art(T,true)} ${tn(T)} no ${T.p ? 'son ideales' : 'es ideal'} para el ${w === 'calor' ? 'calor' : 'frío'}.`); } }
+  }
+  if (R){
+    if (!worst) R.good(`Todas las piezas están al mismo nivel de formalidad, justo para «${OCC[ctx.occ].n.toLowerCase()}».`, 1);
+    else { const T = TYPES[worst.type]; const casual = itemRange(worst)[1] < t; R.warn(`${art(T,true)} ${tn(T)} ${T.p ? 'quedan' : 'queda'} un poco ${casual ? (T.p ? 'casuales' : 'casual') : (T.p ? 'formales' : 'formal')} para la ocasión.`); }
+  }
+  if (o.outer){
+    const ot = o.outer.type;
+    if (w === 'calor'){ if (ot === 'chaqueta' || ot === 'abrigo') s -= 8; else if (t <= 2) s -= 5; }
+    else if (w === 'frio'){ s += 3; if (R) R.good('Una capa encima: abriga y le da estructura al look.', 1); }
+    else s += 1;
+  } else if (w === 'frio' && !(o.top && TYPES[o.top.type].warm)){
+    s -= 8; if (R) R.warn('Hace frío: suma una chaqueta, un cárdigan o un suéter.');
+  }
+  if (o.outer && o.outer.type === 'blazer' && t <= 3 && ((o.top && o.top.type === 'camiseta') || (o.bottom && o.bottom.type === 'jeans'))){
+    s += 4; if (R) R.good('Blazer con piezas casuales: el truco smart casual para verse arreglado sin esfuerzo.', 4);
+  }
+  if (t >= 5 && o.top && !o.outer){ s -= 7; if (R) R.warn('En un evento formal, completa con saco o blazer.'); }
+  else if (t >= 4 && o.outer && (o.outer.type === 'blazer' || o.outer.type === 'abrigo')){ s += t >= 5 ? 4 : 3; if (R) R.good(t >= 5 ? 'Saco o blazer: la base de la etiqueta formal.' : 'El blazer le da estructura y autoridad al look de oficina.', 2); }
+  s += colorScore(o, ctx, R);
+  s += patternScore(o, R);
+  s += shoeScore(o, ctx, R);
+  return s;
+}
+
+function colorScore(o, ctx, R){
+  let s = 0; const t = ctx.t;
+  const big = [o.outer, o.dress || o.top, o.dress ? null : o.bottom].filter(Boolean);
+  const withShoes = o.shoes ? big.concat([o.shoes]) : big;
+  const chrom = [...new Set(withShoes.filter(it => isChromK(it.color)).map(it => it.color))];
+  const n = chrom.length;
+  if (n === 0){ s += 6; if (R) R.good('Paleta neutra: sobria, elegante y fácil de llevar.', 2); }
+  else if (n === 1){ s += 12; if (R) R.good(`Base neutra con un solo acento de color (${cn(chrom[0])}): fórmula infalible.`, 4); }
+  else if (n === 2){ const hm = harmony(chrom[0], chrom[1]); s += hm.s; if (R){ if (hm.s > 0) R.good(hm.txt, 3); else R.warn(hm.txt); } }
+  else {
+    let worst = 99;
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) worst = Math.min(worst, harmony(chrom[i], chrom[j]).s);
+    s -= 8 + 7 * (n - 3) + (worst < 0 ? 6 : 0);
+    if (R) R.warn(`Hay ${n} colores compitiendo; deja uno o dos y el resto en neutros.`);
+  }
+  let cl = null;
+  for (let i = 0; i < big.length && !cl; i++) for (let j = i + 1; j < big.length; j++){
+    const k = pairKey(big[i].color, big[j].color); if (CLASSIC[k]){ cl = CLASSIC[k]; break; }
+  }
+  if (cl){ s += 5; if (R) R.good(cl.txt, 5); }
+  const adj = [];
+  if (o.top && o.bottom) adj.push([o.top, o.bottom]);
+  if (o.outer){ if (o.bottom) adj.push([o.outer, o.bottom]); if (o.top) adj.push([o.outer, o.top]); if (o.dress) adj.push([o.outer, o.dress]); }
+  for (const [a, b] of adj){
+    if (a.color === b.color) continue;
+    const k = pairKey(a.color, b.color), nm = NEAR[k];
+    if (!nm) continue;
+    if (k === pairKey('cafe','negro')){ if (t >= 4){ s -= 6; if (R) R.warn(nm); } else s -= 1; }
+    else { s -= 6; if (R) R.warn(nm); }
+  }
+  if (o.top && o.bottom){
+    if (o.top.color === o.bottom.color){
+      const k = o.top.color;
+      if (k === 'mezclilla'){ s -= 4; if (R) R.warn('Mezclilla con mezclilla del mismo tono se ve plano; combina tonos distintos.'); }
+      else if (k === 'negro'){ s += (ctx.occ === 'fiesta' || t >= 4) ? 6 : 3; if (R) R.good('Total black: estiliza y nunca falla.', 4); }
+      else if (!isChromK(k)){ s += 3; if (R) R.good(`Monocromo en ${cn(k)}: alarga la silueta y se ve pensado.`, 3); }
+      else { s += 1; if (R) R.good(`Total look en ${cn(k)}: atrevido y con intención.`, 2); }
+    } else if (Math.abs(Lk(o.top) - Lk(o.bottom)) >= 35){
+      s += 4; if (R) R.good('Buen contraste claro–oscuro entre arriba y abajo.', 2);
+    }
+  }
+  const loud = withShoes.filter(it => isVivid(C(it)));
+  if (ctx.occ === 'oficina' && loud.length){ s -= 3 * loud.length; if (R) R.warn('Para la oficina conviene un solo color intenso y, mejor, en una pieza pequeña.'); }
+  if (ctx.occ === 'formal' && n >= 2) s -= 4;
+  if (ctx.occ === 'fiesta'){
+    const base = o.dress || o.bottom;
+    if (base && Lk(base) < 35){ s += 3; if (R) R.good('Base oscura: ideal para la noche.', 2); }
+    if (loud.length === 1) s += 2;
+  }
+  if (ctx.occ === 'cita' && n === 1) s += 2;
+  if (t >= 4 && o.shoes && TYPES[o.shoes.type].leather && (o.shoes.color === 'cafe' || o.shoes.color === 'camel') &&
+      ((o.bottom && o.bottom.color === 'negro') || (o.outer && o.outer.color === 'negro'))){
+    s -= 6; if (R) R.warn('En lo formal, con negro van zapatos negros, no café.');
+  }
+  return s;
+}
+
+function patternScore(o, R){
+  const big = [o.outer, o.dress || o.top, o.dress ? null : o.bottom].filter(Boolean);
+  const pats = big.filter(it => it.pattern && it.pattern !== 'liso');
+  if (!pats.length) return 0;
+  if (pats.length === 1){ if (R) R.good(`Un solo estampado (${PAT[pats[0].pattern].toLowerCase()}) como protagonista; lo demás liso.`, 3); return 4; }
+  const ps = pats.map(p => p.pattern);
+  if (pats.length === 2){
+    if (ps.includes('animal')){ if (R) R.warn('El animal print pide ser el único estampado del look.'); return -16; }
+    if (ps[0] === ps[1]){ if (R) R.warn('Dos piezas con el mismo estampado compiten; deja una lisa.'); return -12; }
+    if (ps.includes('rayas') && (ps.includes('cuadros') || ps.includes('lunares') || ps.includes('floral'))){
+      if (R) R.warn('Mezcla de estampados: funciona si uno es grande y el otro fino, y comparten un color.'); return -6;
+    }
+    if (R) R.warn('Dos estampados a la vez recargan el look.'); return -12;
+  }
+  if (R) R.warn('Demasiados estampados juntos.'); return -30;
+}
+
+function shoeScore(o, ctx, R){
+  const sh = o.shoes; if (!sh) return 0;
+  let s = 0; const t = ctx.t;
+  if (!isChromK(sh.color)) s += 2;
+  else {
+    const others = [o.top, o.bottom, o.dress, o.outer].filter(Boolean).map(it => it.color);
+    if (others.includes(sh.color)){ s += 4; if (R) R.good('Los zapatos repiten un color del look: se ve intencional.', 3); }
+  }
+  if (sh.type === 'tenis' && sh.color === 'blanco' && ['casual','cita','relax'].includes(ctx.occ)){ s += 3; if (R) R.good('Tenis blancos: el comodín moderno.', 2); }
+  if (ctx.occ === 'fiesta'){
+    if (sh.type === 'tacones'){ s += 4; if (R) R.good('Tacones: elevan cualquier look de noche.', 2); }
+    else if (TYPES[sh.type].leather) s += 2;
+    else if (sh.type === 'tenis' || sh.type === 'sandalias'){ s -= 3; if (R) R.warn('Para una fiesta, un calzado más arreglado luce mejor que unos tenis o sandalias.'); }
+  }
+  if (t >= 4 && o.bottom && sh.type !== 'tacones' && sh.type !== 'bailarinas' && Lk(sh) - Lk(o.bottom) > 25){
+    s -= 4; if (R) R.warn('En lo formal, los zapatos van más oscuros que el pantalón.');
+  }
+  return s;
+}
+
+const SUBS = ['belt','tie','watch','bag','jewel','jewel','scarf','eyewear','hat'];
+function accScore(a, o, ctx, chosen, R){
+  const T = TYPES[a.type], t = ctx.t; let v = 0;
+  const d = formDist(a, t); if (d >= 2) return -50; if (d === 1) v -= 4;
+  const wp = weatherPen(a, ctx.w); if (wp >= 14) return -50; v -= wp;
+  switch (T.sub){
+    case 'belt': {
+      const b = o.bottom; if (!b || !TYPES[b.type].loops) return -50;
+      v += t >= 3 ? 3 : 1;
+      const sh = o.shoes;
+      if (sh && TYPES[sh.type].leather){
+        const fa = leather(a.color), fs = leather(sh.color);
+        if (a.color === sh.color){ v += t >= 3 ? 5 : 2; if (R) R.good('Cinturón y zapatos del mismo tono: detalle de buen gusto.', 4); }
+        else if (fa && fs && fa !== fs){ v -= t >= 3 ? 8 : 3; if (R) R.warn('Cinturón y zapatos en distinto cuero (negro y café): mejor iguálalos.'); }
+        else if (fa && fa === fs) v += 2;
+      }
+      break;
+    }
+    case 'tie': {
+      if (!o.top || o.top.type !== 'camisa') return -50;
+      v += t >= 5 ? 7 : t >= 4 ? 2 : -8;
+      if (a.color === o.top.color) v -= 5;
+      break;
+    }
+    case 'watch': v += t >= 2 ? 2 : 1; break;
+    case 'bag': v += t >= 2 ? 2 : 1; if (o.shoes && a.color === o.shoes.color){ v += 2; if (R) R.good('Bolso a juego con los zapatos.', 2); } break;
+    case 'jewel': {
+      v += t <= 1 ? -3 : ctx.occ === 'fiesta' ? 3 : t >= 3 ? 2 : 1;
+      const metals = chosen.filter(x => x !== a && PAL[x.color] && PAL[x.color].kind === 'metal').map(x => x.color);
+      if (C(a).kind === 'metal' && metals.some(m => m !== a.color)){ v -= 5; if (R) R.warn('Dorado y plateado juntos restan armonía; elige un solo metal.'); }
+      break;
+    }
+    case 'scarf': v += ctx.w === 'frio' ? 4 : ctx.w === 'templado' ? 1 : -50; break;
+    case 'eyewear': v += (ctx.w === 'calor' && (ctx.occ === 'casual' || ctx.occ === 'relax')) ? 2 : -50; break;
+    case 'hat': v += t <= 2 ? 1 : -50; break;
+  }
+  if (v <= -50) return v;
+  const ck = a.color;
+  if (isChromK(ck)){
+    const core = new Set([o.outer, o.dress || o.top, o.dress ? null : o.bottom, o.shoes].filter(Boolean).map(i => i.color).filter(isChromK));
+    for (const x of chosen) if (x !== a && isChromK(x.color)) core.add(x.color);
+    const list = [...core];
+    if (core.has(ck)){ v += 4; if (R) R.good(`${art(T,true)} ${tn(T)} ${T.p ? 'repiten' : 'repite'} el ${cn(ck)} del look: se ve intencional.`, 3); }
+    else if (!list.length){ v += 3; if (R) R.good(`El toque de color va en ${art(T)} ${tn(T)}: personalidad sin exagerar.`, 3); }
+    else {
+      let worst = 99; for (const k of list) worst = Math.min(worst, harmony(k, ck).s);
+      if (list.length >= 2) v -= 5;
+      v += worst < 0 ? -10 : worst >= 6 ? 1 : -1;
+    }
+  }
+  return v;
+}
+
+function addAccessories(o, ctx, accs, forced){
+  const chosen = []; let s = 0;
+  if (forced){ s += Math.max(accScore(forced, o, ctx, chosen, null), -30); chosen.push(forced); }
+  const used = new Set(chosen.map(a => TYPES[a.type].sub));
+  let jewels = chosen.filter(a => TYPES[a.type].sub === 'jewel').length;
+  const maxAcc = ctx.t <= 2 ? 3 : 4;
+  for (const sub of SUBS){
+    if (chosen.length >= maxAcc) break;
+    if (sub === 'jewel'){ if (jewels >= 2) continue; } else if (used.has(sub)) continue;
+    let best = null, bv = 0;
+    for (const a of accs){
+      if (chosen.includes(a) || TYPES[a.type].sub !== sub) continue;
+      const v = accScore(a, o, ctx, chosen, null);
+      if (v > bv){ bv = v; best = a; }
+    }
+    if (best){ chosen.push(best); s += bv; used.add(sub); if (sub === 'jewel') jewels++; }
+  }
+  o.acc = chosen;
+  return s;
+}
+
+const CAPS = {top:14, bottom:12, dress:10, outer:6, shoes:8, acc:40};
+function itemFit(it, ctx, seed){
+  return -formDist(it, ctx.t) * 10 - weatherPen(it, ctx.w) - (wornRecently(it) ? 4 : 0) + (seed ? (hashStr(it.id + ':' + seed) % 100) / 100 * 7 : 0);
+}
+function poolFor(ctx, fixed, seed){
+  const g = {top:[], bottom:[], dress:[], outer:[], shoes:[], acc:[]};
+  for (const it of state.items){
+    const T = TYPES[it.type]; if (!T || it === fixed) continue;
+    if (formDist(it, ctx.t) > 1 || weatherPen(it, ctx.w) >= 14) continue;
+    g[T.slot].push(it);
+  }
+  for (const k in g){ g[k].sort((a, b) => itemFit(b, ctx, seed) - itemFit(a, ctx, seed)); g[k] = g[k].slice(0, CAPS[k]); }
+  if (fixed){ const sl = TYPES[fixed.type].slot; if (sl === 'acc') g.acc.unshift(fixed); else g[sl] = [fixed]; }
+  return g;
+}
+function buildCores(ctx, g, fixedSlot){
+  const out = [];
+  const shoesL = g.shoes.length ? g.shoes : [null];
+  const outerL = fixedSlot === 'outer' ? g.outer : [null].concat(g.outer);
+  if (fixedSlot !== 'dress')
+    for (const top of g.top) for (const bottom of g.bottom) for (const shoes of shoesL) for (const outer of outerL){
+      const o = {top, bottom, dress:null, outer, shoes, acc:[]}; out.push({o, s: scoreCore(o, ctx, null)});
+    }
+  if (fixedSlot !== 'top' && fixedSlot !== 'bottom')
+    for (const dress of g.dress) for (const shoes of shoesL) for (const outer of outerL){
+      const o = {top:null, bottom:null, dress, outer, shoes, acc:[]}; out.push({o, s: scoreCore(o, ctx, null)});
+    }
+  return out;
+}
+function lookKey(o){ return [o.top, o.bottom, o.dress, o.outer, o.shoes].concat(o.acc || []).filter(Boolean).map(i => i.id).sort().join(','); }
+function overlap(a, b){
+  let v = 0;
+  if (a.top && a.top === b.top) v += 12; if (a.dress && a.dress === b.dress) v += 14;
+  if (a.bottom && a.bottom === b.bottom) v += 9; if (a.shoes && a.shoes === b.shoes) v += 4; if (a.outer && a.outer === b.outer) v += 4;
+  return v;
+}
+const recentPen = o => [o.top, o.bottom, o.dress, o.outer, o.shoes].filter(Boolean).filter(wornRecently).length * 4;
+
+function suggest(ctx, opts){
+  opts = opts || {};
+  const fixed = opts.fixed || null, limit = opts.limit || 6, seed = opts.seed || 0;
+  const g = poolFor(ctx, fixed, seed);
+  const fslot = fixed ? TYPES[fixed.type].slot : null;
+  let cores = buildCores(ctx, g, fslot === 'acc' ? null : fslot);
+  const evaluated = cores.length;
+  cores.sort((a, b) => b.s - a.s); cores = cores.slice(0, 90);
+  const res = [];
+  for (const c of cores){
+    const accS = addAccessories(c.o, ctx, g.acc, fslot === 'acc' ? fixed : null);
+    const total = c.s + accS;
+    const jitter = seed ? ((hashStr(lookKey(c.o) + ':' + seed) % 1000) / 1000 - 0.5) * 10 : 0;
+    res.push({o: c.o, total, rank: total + jitter - recentPen(c.o)});
+  }
+  res.sort((a, b) => b.rank - a.rank);
+  const picked = [];
+  while (picked.length < limit && res.length){
+    let bi = -1, bv = -1e9;
+    for (let i = 0; i < res.length; i++){ let v = res[i].rank; for (const p of picked) v -= overlap(res[i].o, p.o); if (v > bv){ bv = v; bi = i; } }
+    const r = res.splice(bi, 1)[0];
+    if (r.total < 55 && picked.length) break;
+    picked.push(r);
+  }
+  return {evaluated, looks: picked.map(r => { const L = finalize(r.o, ctx); L.fixed = fixed; return L; })};
+}
+
+function finalize(o, ctx){
+  const R = mkR(); let s = scoreCore(o, ctx, R);
+  const chosen = [];
+  for (const a of (o.acc || [])){ s += Math.max(accScore(a, o, ctx, chosen, R), -30); chosen.push(a); }
+  return {o, ctx, score: s, nota: notaOf(s), title: titleFor(o, ctx), good: R.goods(), warn: R.warns(), tips: tipsFor(o, ctx), key: lookKey(o)};
+}
+
+function titleFor(o, ctx){
+  const big = [o.outer, o.dress || o.top, o.dress ? null : o.bottom].filter(Boolean);
+  const keys = [...new Set(big.map(i => i.color))];
+  const chrom = [...new Set(big.concat(o.shoes ? [o.shoes] : []).filter(i => isChromK(i.color)).map(i => i.color))];
+  if (o.dress && !o.outer){
+    const k = o.dress.color;
+    if (k === 'negro') return 'El vestidito negro';
+    if (isChromK(k)) return cap(cn(k)) + ' protagonista';
+    return 'Sobrio y elegante';
+  }
+  if (keys.length === 1 && keys[0] === 'negro') return 'Total black';
+  if (o.outer && o.outer.type === 'blazer' && ctx.t <= 3 && ((o.top && o.top.type === 'camiseta') || (o.bottom && o.bottom.type === 'jeans'))) return 'Smart casual con blazer';
+  for (let i = 0; i < big.length; i++) for (let j = i + 1; j < big.length; j++){ const c = CLASSIC[pairKey(big[i].color, big[j].color)]; if (c) return c.title; }
+  if (keys.length === 1 && big.length > 1) return 'Monocromo ' + cn(keys[0]);
+  if (chrom.length === 1) return 'Neutros con ' + cn(chrom[0]);
+  if (!chrom.length){ const L = big.reduce((a, i) => a + Lk(i), 0) / big.length; return L > 70 ? 'Neutros claros' : L < 35 ? 'Neutros profundos' : 'Clásico neutro'; }
+  if (chrom.length === 2) return cap(cn(chrom[0])) + ' y ' + cn(chrom[1]);
+  return 'Look con color';
+}
+
+function tipsFor(o, ctx){
+  const tips = [];
+  const acc = o.acc || [];
+  if (acc.some(a => a.type === 'corbata')) tips.push('La punta de la corbata debe llegar justo a la hebilla del cinturón.');
+  if (o.top && TYPES[o.top.type].tuck && ctx.t >= 3 && o.bottom){
+    const T = TYPES[o.top.type];
+    tips.push(`Mete ${art(T)} ${tn(T)} por dentro ${o.bottom.type === 'falda' ? 'de la falda' : 'del pantalón'} para marcar la cintura.`);
+  }
+  if (o.outer && o.outer.type === 'blazer' && o.bottom && o.bottom.type === 'jeans') tips.push('Con blazer, elige jeans oscuros y sin rotos.');
+  if (o.top && o.top.type === 'camisa' && ctx.t <= 2) tips.push('Arremanga la camisa dos vueltas: se ve relajado y con estilo.');
+  if (o.dress && !o.outer && ctx.t >= 4) tips.push('Para la oficina, un blazer o cárdigan sobre el vestido lo hace más profesional.');
+  if (o.shoes && TYPES[o.shoes.type].leather && ctx.t >= 4) tips.push('Zapatos limpios y lustrados: es lo primero que se nota.');
+  if (acc.length >= 4) tips.push('Antes de salir, mírate al espejo y quítate un accesorio (consejo de Coco Chanel).');
+  const chrom = [o.top, o.bottom, o.dress, o.outer, o.shoes].concat(acc).filter(Boolean).filter(i => isChromK(i.color));
+  if (!chrom.length && ctx.t <= 3) tips.push('¿Quieres más personalidad? Suma un accesorio de color.');
+  if (o.bottom && ['pantalon','chino'].includes(o.bottom.type) && ctx.t >= 3) tips.push('El pantalón debe rozar apenas el zapato, sin arrugarse de más.');
+  if (ctx.w === 'calor' && !tips.length) tips.push('Con calor, prefiere telas frescas como lino y algodón.');
+  return tips.slice(0, 2);
+}
+function notaOf(s){ return s <= 90 ? clamp(s, 0, 90) / 10 : 9 + (s - 90) / (s - 90 + 12); }
+function notaLabel(n){ return n >= 9 ? 'Impecable' : n >= 8 ? 'Muy elegante' : n >= 7 ? 'Bien logrado' : n >= 6 ? 'Correcto' : 'Mejorable'; }
+
+function countGood(ctx, fixed, cap){
+  if (fixed && (formDist(fixed, ctx.t) > 1 || weatherPen(fixed, ctx.w) >= 14)) return 0;
+  const g = poolFor(ctx, fixed, 0); const fs = fixed ? TYPES[fixed.type].slot : null;
+  let cores = buildCores(ctx, g, fs === 'acc' ? null : fs).filter(c => c.s >= 50);
+  cores.sort((a, b) => b.s - a.s); cores = cores.slice(0, cap || 160);
+  const without = fs === 'acc' ? g.acc.filter(a => a !== fixed) : null;
+  let n = 0;
+  for (const c of cores){
+    const o = Object.assign({}, c.o);
+    const as = addAccessories(o, ctx, g.acc, fs === 'acc' ? fixed : null);
+    if (fs === 'acc'){ const o2 = Object.assign({}, c.o); const before = addAccessories(o2, ctx, without, null); if (c.s + as <= c.s + before) continue; }
+    if (c.s + as >= 70) n++;
+  }
+  return n;
+}
+
+/* ---------- Ilustraciones de prendas ---------- */
+const SHAPES = {
+  camiseta:{d:'M36 14Q50 25 64 14L84 23L93 40L79 47L72 40V88H28V40L21 47L7 40L16 23Z', l:'M38 16Q50 27 62 16'},
+  camisa:{d:'M38 12L50 18L62 12L80 20L90 72L80 75L72 40V90H28V40L20 75L10 72L20 20Z', l:'M38 12L44 25L50 18L56 25L62 12M50 18V90M11 66L20 69M89 66L80 69', dots:[[50,34],[50,48],[50,62],[50,76]]},
+  polo:{d:'M38 12L50 16L62 12L84 24L91 40L77 46L72 40V88H28V40L23 46L9 40L16 24Z', l:'M38 12L44 22L50 16L56 22L62 12M50 16V33', dots:[[50,23],[50,29]]},
+  blusa:{d:'M36 12Q50 27 64 12L82 22L89 52L78 54L70 37Q75 63 70 88H30Q25 63 30 37L22 54L11 52L18 22Z', l:'M36 12Q50 27 64 12M45 24Q50 30 55 24'},
+  toptank:{d:'M36 12H41Q50 32 59 12H64Q64 30 72 40V88H28V40Q36 30 36 12Z'},
+  sueter:{d:'M38 12Q50 21 62 12L80 18L90 74L79 77L72 42V90H28V42L21 77L10 74L20 18Z', l:'M38 12Q50 24 62 12M29 84H71M12 69L22 72M88 69L78 72'},
+  sudadera:{bk:[{d:'M34 17Q50 -2 66 17Q50 30 34 17Z', f:'shade'}], d:'M38 14Q50 22 62 14L80 18L90 74L79 77L72 42V90H28V42L21 77L10 74L20 18Z', l:'M36 64H64L67 79H33ZM47 22L46 32M53 22L54 32M29 85H71'},
+  blazer:{d:'M36 10L50 30L64 10L82 18L90 76L80 78L74 42V92H26V42L20 78L10 76L18 18Z', ex:[{d:'M41 11L50 30L59 11Z', f:'shirt'}], l:'M36 10L44 40L50 30M64 10L56 40L50 30M50 30V92M58 72H68M31 52H40', dots:[[52,58],[52,70]]},
+  chaqueta:{d:'M38 12L50 16L62 12L82 20L90 72L80 75L74 40V84H26V40L20 75L10 72L18 20Z', l:'M38 12L42 23L50 16L58 23L62 12M50 16V84M27 78H73M33 55L37 69M67 55L63 69'},
+  cardigan:{d:'M38 12L50 40L62 12L80 18L90 74L79 77L72 42V90H28V42L21 77L10 74L20 18Z', ex:[{d:'M40 13L50 40L60 13Z', f:'shirt'}], l:'M50 40V90M29 85H71', dots:[[52,50],[52,62],[52,74]]},
+  abrigo:{d:'M36 6L50 26L64 6L82 14L90 74L80 76L75 40L78 96H22L25 40L20 76L10 74L18 14Z', ex:[{d:'M41 7L50 26L59 7Z', f:'shirt'}], l:'M36 6L44 36L50 26M64 6L56 36L50 26M24 54H76M50 26V96', dots:[[45,66],[55,66],[45,78],[55,78]]},
+  jeans:{d:'M28 8H72L76 94H56L50 34L44 94H24Z', l:'M28 14H72M50 14V30M30 14Q35 25 43 22M70 14Q65 25 57 22M25 88H43M57 88H75'},
+  pantalon:{d:'M30 8H70L74 94H56L50 34L44 94H26Z', l:'M30 13H70M50 13V30M37 30L35 94M63 30L65 94'},
+  chino:{d:'M30 8H70L74 94H56L50 34L44 94H26Z', l:'M30 13H70M50 13V30M32 13L38 27M68 13L62 27'},
+  falda:{d:'M34 12H66L80 86Q50 92 20 86Z', l:'M34 18H66M42 18L37 88M50 18V90M58 18L63 88'},
+  short:{d:'M26 18H74L78 66L56 68L50 42L44 68L22 66Z', l:'M26 24H74M50 24V38M23 60L44 62M56 62L77 60'},
+  jogger:{d:'M30 8H70L72 86H56L50 34L44 86H28Z', ex:[{d:'M28 86H44V94H28Z', f:'shade'},{d:'M56 86H72V94H56Z', f:'shade'}], l:'M30 15H70M48 15L46 25M52 15L54 25'},
+  vestido:{d:'M38 6H43Q50 18 57 6H62Q62 22 67 32Q62 40 63 46L82 92Q50 98 18 92L37 46Q38 40 33 32Q38 22 38 6Z', l:'M37 46Q50 50 63 46'},
+  enterizo:{d:'M36 6H42Q50 18 58 6H64Q64 24 68 34L70 46L74 94H56L50 54L44 94H26L30 46L32 34Q36 24 36 6Z', l:'M31 46H69'},
+  zapatos:{d:'M10 48Q12 43 19 44L31 46Q39 47 46 50Q62 54 78 57Q91 60 92 66V70H10Z', ex:[{d:'M8 70H94V74Q50 77 8 74Z', f:'sole'}], l:'M38 48Q46 59 60 56M44 51L50 49M46 54L53 52'},
+  mocasines:{d:'M10 52Q12 47 20 48L36 50Q50 52 64 54Q86 57 92 64V70H10Z', ex:[{d:'M8 70H94V74Q50 77 8 74Z', f:'sole'}], l:'M48 55Q62 49 78 57M46 59L60 60'},
+  tenis:{d:'M10 44Q14 37 24 39L36 41Q44 43 52 50Q70 54 84 56Q92 58 92 64V67H10Z', ex:[{d:'M8 66H94V73Q50 77 8 73Z', f:'rubber'}], l:'M36 44L42 48M40 42L46 46M44 45L50 49M24 57Q44 50 62 58'},
+  botines:{d:'M20 20H46L48 54Q70 56 86 62Q92 66 92 70H18Z', ex:[{d:'M16 70H94V76H16Z', f:'sole'}], l:'M38 26Q44 40 46 52M20 26H46'},
+  tacones:{bk:[{d:'M15 50L21 55L22 86H18Z', f:'shade'}], d:'M12 44Q16 41 23 46Q34 54 48 58Q66 60 82 62Q92 64 90 70H58Q44 68 30 62L20 58Q15 53 12 44Z'},
+  bailarinas:{d:'M10 58Q12 51 22 53Q36 58 54 57Q76 55 90 62Q93 68 86 70H16Q10 68 10 58Z', ex:[{d:'M56 57Q61 51 65 56Q62 61 56 57Z', f:'shade'}]},
+  sandalias:{bk:[{d:'M8 68Q50 62 94 68V73Q50 71 8 74Z', f:'tan'}], d:'M26 67Q38 42 54 66L49 66Q38 52 31 67ZM58 66Q68 46 82 66L77 66Q68 54 63 66Z'},
+  cinturon:{d:'M6 44H94V58H6Z', ex:[{d:'M18 39H36V63H18Z', f:'none', sc:'metal', w:3.2}], l:'M18 51H33', dots:[[52,51,1.6],[60,51,1.6],[68,51,1.6]]},
+  corbata:{d:'M44 10H56L58 22L54 26L62 76L50 92L38 76L46 26L42 22Z', l:'M42 22H58M46 26H54'},
+  bolso:{bk:[{d:'M32 40Q32 15 50 15Q68 15 68 40', f:'none', sc:'self', w:4.5}], d:'M18 40H82L88 86H12Z', l:'M18 40L50 62L82 40', dots:[[50,62,3]]},
+  reloj:{d:'M40 6H60L58 34H42ZM42 66H58L60 94H40Z', circ:[[50,50,19,'face','metal',4]], l:'M50 50V38M50 50L58 54'},
+  collar:{sm:'M24 14Q50 76 76 14', w:2.6, d:'M50 45L44 56Q50 67 56 56Z'},
+  aretes:{sm:'M36 28V16M64 28V16', w:2, d:'M36 28Q27 46 36 60Q45 46 36 28ZM64 28Q55 46 64 60Q73 46 64 28Z'},
+  pulsera:{ell:[50,52,33,17], w:7},
+  bufanda:{d:'M28 10Q50 20 72 10L74 32Q50 42 26 32ZM54 34H70L74 84L58 86Z', l:'M58 86L57 93M62 86L61 93M66 85L66 92M70 85L71 92'},
+  gafas:{d:'M12 42H44L42 60Q30 68 16 60ZM56 42H88L84 60Q70 68 58 60Z', sm:'M44 46Q50 41 56 46M12 44L5 40M88 44L95 40', w:2.4},
+  gorra:{d:'M20 60Q20 26 50 26Q80 26 80 60Z', ex:[{d:'M50 58L94 60Q95 68 80 68L50 66Z', f:'shade'}], l:'M50 26Q44 40 46 60M50 26Q58 40 56 60', dots:[[50,26,2.4]]}
+};
+let svgSeq = 0;
+function patternDef(p, id, c){
+  switch (p){
+    case 'rayas': return `<pattern id="${id}" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="2.6" height="7" fill="${c}"/></pattern>`;
+    case 'cuadros': return `<pattern id="${id}" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="4" fill="${c}"/><rect width="4" height="12" fill="${c}"/><rect x="8" width="1" height="12" fill="${c}"/></pattern>`;
+    case 'lunares': return `<pattern id="${id}" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.6" fill="${c}"/><circle cx="7" cy="7" r="1.6" fill="${c}"/></pattern>`;
+    case 'floral': return `<pattern id="${id}" width="16" height="16" patternUnits="userSpaceOnUse"><g fill="${c}"><circle cx="4" cy="2.6" r="1.5"/><circle cx="5.6" cy="4.2" r="1.5"/><circle cx="4" cy="5.8" r="1.5"/><circle cx="2.4" cy="4.2" r="1.5"/><circle cx="12" cy="10.6" r="1.5"/><circle cx="13.6" cy="12.2" r="1.5"/><circle cx="12" cy="13.8" r="1.5"/><circle cx="10.4" cy="12.2" r="1.5"/></g></pattern>`;
+    case 'animal': return `<pattern id="${id}" width="18" height="18" patternUnits="userSpaceOnUse"><path fill="${c}" d="M3 4q3-3 5 0q-1 3-5 0zM11 11q4-2 5 2q-3 2-5-2zM4 13q2-2 3 1q-2 1-3-1z"/></pattern>`;
+    case 'estampado': return `<pattern id="${id}" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M2 10L6 3L10 10Z" fill="${c}"/></pattern>`;
+    default: return '';
+  }
+}
+function garmentSVG(type, hex, pattern){
+  const S = SHAPES[type] || SHAPES.camiseta;
+  const L = rgbLab(hexRgb(hex))[0];
+  const stroke = L < 28 ? shade(hex, 0.55) : shade(hex, -0.42);
+  const selfStroke = L > 88 ? shade(hex, -0.25) : hex;
+  const fillOf = (f) => ({shade: shade(hex, L < 28 ? 0.18 : -0.22), shirt: '#F3F1EC', sole: '#2B272A', rubber: '#F4F2EE', tan: '#C8A77C', face: '#F6F5F2', none: 'none'})[f] || hex;
+  const strokeOf = (e) => e.sc === 'metal' ? '#A2A5AB' : e.sc === 'self' ? selfStroke : e.f === 'shirt' ? '#C9C4BB' : e.f === 'rubber' ? '#BCB7B0' : e.f === 'tan' ? '#9A7D58' : e.f === 'sole' ? '#2B272A' : stroke;
+  let out = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" stroke-linejoin="round" stroke-linecap="round">`;
+  if (pattern && pattern !== 'liso' && S.d){
+    const id = 'pt' + (++svgSeq);
+    const pc = L > 62 ? 'rgba(40,36,48,.45)' : 'rgba(255,255,255,.5)';
+    out += `<defs>${patternDef(pattern, id, pc)}</defs>`;
+    S._pid = id;
+  } else S._pid = null;
+  (S.bk || []).forEach(e => { out += `<path d="${e.d}" fill="${fillOf(e.f)}" stroke="${strokeOf(e)}" stroke-width="${e.w || 1.6}"/>`; });
+  if (S.d) out += `<path d="${S.d}" fill="${hex}" stroke="${stroke}" stroke-width="1.8"/>`;
+  if (S._pid) out += `<path d="${S.d}" fill="url(#${S._pid})"/>`;
+  if (S.ell) out += `<ellipse cx="${S.ell[0]}" cy="${S.ell[1]}" rx="${S.ell[2]}" ry="${S.ell[3]}" fill="none" stroke="${selfStroke}" stroke-width="${S.w}"/>`;
+  if (S.sm) out += `<path d="${S.sm}" fill="none" stroke="${selfStroke}" stroke-width="${S.w}"/>`;
+  (S.ex || []).forEach(e => { out += `<path d="${e.d}" fill="${fillOf(e.f)}" stroke="${strokeOf(e)}" stroke-width="${e.w || 1.6}"/>`; });
+  (S.circ || []).forEach(c => { out += `<circle cx="${c[0]}" cy="${c[1]}" r="${c[2]}" fill="${fillOf(c[3])}" stroke="${c[4] === 'metal' ? '#A2A5AB' : stroke}" stroke-width="${c[5]}"/>`; });
+  if (S.l) out += `<path d="${S.l}" fill="none" stroke="${stroke}" stroke-width="1.4"/>`;
+  (S.dots || []).forEach(d => { out += `<circle cx="${d[0]}" cy="${d[1]}" r="${d[2] || 1.3}" fill="${stroke}"/>`; });
+  return out + '</svg>';
+}
+function iconSVG(type){ return garmentSVG(type, '#D8D2DB', 'liso'); }
+
+/* ---------- Almacenamiento ---------- */
+const DB = {
+  db: null, ok: false, mem: {items: new Map(), looks: new Map()},
+  async open(){
+    try {
+      if (!('indexedDB' in window)) throw new Error('no idb');
+      this.db = await Promise.race([
+        new Promise((res, rej) => {
+          const r = indexedDB.open('vestidor', 1);
+          r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains('items')) d.createObjectStore('items', {keyPath:'id'}); if (!d.objectStoreNames.contains('looks')) d.createObjectStore('looks', {keyPath:'id'}); };
+          r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); r.onblocked = () => rej(new Error('blocked'));
+        }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+      ]);
+      this.ok = true;
+    } catch (e){ this.ok = false; }
+  },
+  async all(store){
+    if (!this.ok) return [...this.mem[store].values()];
+    try {
+      return await new Promise((res, rej) => { const q = this.db.transaction(store).objectStore(store).getAll(); q.onsuccess = () => res(q.result || []); q.onerror = () => rej(q.error); });
+    } catch (e){ this.ok = false; return [...this.mem[store].values()]; }
+  },
+  async put(store, obj){
+    this.mem[store].set(obj.id, obj);
+    if (!this.ok) return;
+    try { await new Promise((res, rej) => { const tx = this.db.transaction(store, 'readwrite'); tx.objectStore(store).put(obj); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); }); }
+    catch (e){ storageWarn(); }
+  },
+  async del(store, id){
+    this.mem[store].delete(id);
+    if (!this.ok) return;
+    try { await new Promise((res, rej) => { const tx = this.db.transaction(store, 'readwrite'); tx.objectStore(store).delete(id); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); } catch (e){}
+  },
+  async clear(store){
+    this.mem[store].clear();
+    if (!this.ok) return;
+    try { await new Promise((res, rej) => { const tx = this.db.transaction(store, 'readwrite'); tx.objectStore(store).clear(); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); } catch (e){}
+  }
+};
+let warnedStorage = false;
+function storageWarn(){ if (warnedStorage) return; warnedStorage = true; toast('Este navegador no deja guardar datos: tus prendas se perderán al cerrar.'); }
+const LS = {
+  get(k, d){ try { const v = localStorage.getItem('vestidor.' + k); return v == null ? d : JSON.parse(v); } catch (e){ return d; } },
+  set(k, v){ try { localStorage.setItem('vestidor.' + k, JSON.stringify(v)); } catch (e){} }
+};
+
+/* ---------- Estado ---------- */
+const state = {
+  items: [], looks: [], view: 'closet', filter: 'all', seed: 0, fixed: null, combineTab: 'sug',
+  set: Object.assign({profile: null, occ: 'casual', w: 'calor', seeded: false}, LS.get('settings', {})),
+  ai: {sample: null, images: false, downloads: null},
+  urls: new Map(), ideas: null, ideasDirty: true, installEvt: null
+};
+const saveSettings = () => LS.set('settings', state.set);
+function photoURL(it){
+  if (!it.photo) return null;
+  let u = state.urls.get(it.id);
+  if (!u){ u = URL.createObjectURL(new Blob([it.photo], {type: it.photoType || 'image/jpeg'})); state.urls.set(it.id, u); }
+  return u;
+}
+function dropURL(id){ const u = state.urls.get(id); if (u){ URL.revokeObjectURL(u); state.urls.delete(id); } }
+function markDirty(){ state.ideasDirty = true; state.ideas = null; }
+
+const SAMPLES = {
+  h:[['camisa','blanco'],['camisa','celeste'],['camisa','rojo','cuadros'],['camiseta','blanco'],['camiseta','negro'],['polo','marino'],['sueter','gris_claro'],['jeans','mezclilla'],['chino','beige'],['pantalon','carbon'],['short','caqui'],['blazer','marino'],['chaqueta','oliva'],['zapatos','cafe'],['mocasines','camel'],['tenis','blanco'],['cinturon','cafe'],['cinturon','negro'],['reloj','plateado'],['corbata','vino'],['gafas','negro']],
+  m:[['blusa','blanco'],['blusa','celeste','rayas'],['camiseta','negro'],['toptank','coral'],['sueter','camel'],['jeans','mezclilla'],['pantalon','negro'],['falda','beige'],['vestido','negro'],['vestido','esmeralda'],['vestido','rosa','floral'],['blazer','camel'],['cardigan','crema'],['tacones','beige'],['bailarinas','negro'],['tenis','blanco'],['sandalias','camel'],['bolso','camel'],['bolso','negro'],['aretes','dorado'],['collar','dorado'],['cinturon','negro']],
+  t:[['camisa','blanco'],['camiseta','negro'],['blusa','rosa'],['sueter','gris_claro'],['jeans','mezclilla'],['pantalon','negro'],['chino','beige'],['falda','camel'],['vestido','marino'],['blazer','negro'],['chaqueta','mezclilla'],['tenis','blanco'],['mocasines','cafe'],['tacones','negro'],['bolso','camel'],['cinturon','cafe'],['reloj','dorado'],['collar','dorado'],['gafas','cafe']]
+};
+const ESS = {
+  h:[['camisa','blanco','Combina con todo: del jean al traje.'],['camisa','celeste','Más suave que el blanco y perfecta para la oficina.'],['camiseta','blanco','La base de cualquier look casual.'],['polo','marino','Arreglado sin corbata; ideal para el calor.'],['jeans','mezclilla','Oscuros y rectos: van de día y de noche.'],['chino','beige','El punto medio entre jean y pantalón de vestir.'],['pantalon','carbon','El pantalón más versátil de la sastrería.'],['blazer','marino','Eleva hasta una camiseta.'],['sueter','gris_claro','La capa fácil para el aire acondicionado o el frío.'],['zapatos','cafe','Café oscuro: van con azul, gris y beige.'],['zapatos','negro','Imprescindibles para eventos formales.'],['tenis','blanco','Minimalistas: el comodín moderno.'],['cinturon','cafe','Iguálalo con tus zapatos café.'],['cinturon','negro','Para acompañar zapatos negros.'],['reloj','plateado','Un reloj sobrio da acabado a cualquier look.'],['corbata','marino','Lisa y oscura: sirve para casi todo.']],
+  m:[['blusa','blanco','Sube de nivel cualquier falda o jean.'],['camiseta','blanco','La base de cualquier look casual.'],['camiseta','negro','Básica, estiliza y combina con todo.'],['jeans','mezclilla','Oscuros y rectos: van de día y de noche.'],['pantalon','negro','Oficina de día y cena de noche.'],['falda','negro','Midi y lisa: la pieza más versátil.'],['vestido','negro','El vestidito negro resuelve cualquier evento.'],['blazer','negro','Estructura al instante, sobre vestido o jean.'],['cardigan','camel','Capa suave que calienta cualquier color.'],['tacones','beige','Tono nude: alargan la pierna y van con todo.'],['bailarinas','negro','Cómodas y elegantes para todo el día.'],['tenis','blanco','Minimalistas: el comodín moderno.'],['bolso','camel','Camel: el tono de bolso más versátil.'],['aretes','dorado','Pequeños y dorados: dan luz al rostro.'],['cinturon','negro','Marca la cintura en vestidos y blazers.']]
+};
+ESS.t = (() => { const seen = new Set(), out = []; ESS.h.concat(ESS.m).forEach(e => { const k = e[0] + '|' + e[1]; if (!seen.has(k)){ seen.add(k); out.push(e); } }); return out; })();
+
+async function seedSamples(profile){
+  const list = SAMPLES[profile] || SAMPLES.t; const now = Date.now();
+  const items = list.map((s, i) => ({id: 'ej_' + profile + '_' + i, type: s[0], color: s[1], pattern: s[2] || 'liso', shift: 0, season: TYPES[s[0]].season || 'all', name: '', created: now - i, worn: [], sample: true}));
+  for (const it of items) await DB.put('items', it);
+  state.items = state.items.concat(items);
+  state.set.seeded = true; saveSettings(); markDirty();
+}
+async function removeSamples(){
+  const s = state.items.filter(i => i.sample);
+  for (const it of s) await DB.del('items', it.id);
+  state.items = state.items.filter(i => !i.sample);
+  markDirty();
+}
+const hasSamples = () => state.items.some(i => i.sample);
+const ownCount = () => state.items.filter(i => !i.sample).length;
+
+/* ---------- Fotos ---------- */
+function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('img')); i.src = src; }); }
+function toBlob(cv, type, q){ return new Promise(res => { if (cv.toBlob) cv.toBlob(b => res(b), type, q); else res(null); }); }
+function blobToBuf(b){ return b.arrayBuffer ? b.arrayBuffer() : new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsArrayBuffer(b); }); }
+async function canvasFromBlob(blob, max){
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = await loadImg(url);
+    const sc = Math.min(1, (max || 900) / Math.max(img.naturalWidth, img.naturalHeight));
+    const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(img.naturalWidth * sc)); cv.height = Math.max(1, Math.round(img.naturalHeight * sc));
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    return cv;
+  } finally { setTimeout(() => URL.revokeObjectURL(url), 500); }
+}
+async function processPhoto(file){
+  const cv = await canvasFromBlob(file, 900);
+  const blob = await toBlob(cv, 'image/jpeg', 0.82) || file;
+  return {blob, canvas: cv, colors: detectColors(cv)};
+}
+function kmeans(pts, k, iters){
+  if (!pts.length) return [];
+  k = Math.min(k, pts.length);
+  const cents = [pts[0].lab.slice()];
+  while (cents.length < k){ let bi = 0, bd = -1; for (let i = 0; i < pts.length; i++){ let md = 1e9; for (const c of cents) md = Math.min(md, dE(c, pts[i].lab)); if (md > bd){ bd = md; bi = i; } } cents.push(pts[bi].lab.slice()); }
+  let asg = new Array(pts.length).fill(0);
+  for (let it = 0; it < (iters || 8); it++){
+    for (let i = 0; i < pts.length; i++){ let bi = 0, bd = 1e9; for (let c = 0; c < k; c++){ const d = dE(cents[c], pts[i].lab); if (d < bd){ bd = d; bi = c; } } asg[i] = bi; }
+    const acc = cents.map(() => [0,0,0,0]);
+    for (let i = 0; i < pts.length; i++){ const w = pts[i].w, a = acc[asg[i]], l = pts[i].lab; a[0] += l[0]*w; a[1] += l[1]*w; a[2] += l[2]*w; a[3] += w; }
+    acc.forEach((a, c) => { if (a[3] > 0) cents[c] = [a[0]/a[3], a[1]/a[3], a[2]/a[3]]; });
+  }
+  const out = cents.map(c => ({c, wt: 0, n: 0}));
+  for (let i = 0; i < pts.length; i++){ out[asg[i]].wt += pts[i].w; out[asg[i]].n++; }
+  return out;
+}
+function detectColors(cv){
+  try {
+    const N = 56; const s = document.createElement('canvas'); s.width = N; s.height = N;
+    const c = s.getContext('2d', {willReadFrequently: true}); c.drawImage(cv, 0, 0, N, N);
+    const d = c.getImageData(0, 0, N, N).data; const px = [];
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++){
+      const i = (y * N + x) * 4; if (d[i+3] < 128) continue;
+      const lab = rgbLab([d[i], d[i+1], d[i+2]]);
+      const border = x < 3 || y < 3 || x >= N - 3 || y >= N - 3;
+      const dx = (x - N/2) / (N/2), dy = (y - N/2) / (N/2);
+      px.push({lab, w: Math.exp(-(dx*dx + dy*dy) * 1.6), border});
+    }
+    const bpts = px.filter(p => p.border).map(p => ({lab: p.lab, w: 1}));
+    const bg = kmeans(bpts, 3, 6).filter(cl => cl.n / bpts.length > 0.18).map(cl => cl.c);
+    const inner = px.filter(p => !p.border);
+    let fg = inner.filter(p => !bg.some(b => dE(b, p.lab) < 16));
+    const tw = inner.reduce((a, p) => a + p.w, 0), fw = fg.reduce((a, p) => a + p.w, 0);
+    if (fw < 0.08 * tw) fg = inner;
+    const cl = kmeans(fg, 4, 8).sort((a, b) => b.wt - a.wt);
+    const out = [];
+    for (const k of cl){ const key = nearestColor(k.c, false); if (key && !out.includes(key)) out.push(key); if (out.length >= 3) break; }
+    return out;
+  } catch (e){ return []; }
+}
+function colorAt(cv, fx, fy){
+  try {
+    const c = cv.getContext('2d', {willReadFrequently: true});
+    const x = clamp(Math.round(fx * cv.width) - 3, 0, cv.width - 7), y = clamp(Math.round(fy * cv.height) - 3, 0, cv.height - 7);
+    const d = c.getImageData(x, y, 7, 7).data; let r = 0, g = 0, b = 0, n = 0;
+    for (let i = 0; i < d.length; i += 4){ r += d[i]; g += d[i+1]; b += d[i+2]; n++; }
+    return nearestColor(rgbLab([r/n, g/n, b/n]), true);
+  } catch (e){ return null; }
+}
+
+/* ---------- Interfaz común ---------- */
+let toastTimer = null;
+function toast(msg){
+  let t = $('#toast');
+  if (!t){ t = h('div', {id: 'toast', class: 'toast', role: 'status', 'aria-live': 'polite'}); document.body.append(t); }
+  t.textContent = msg; t.hidden = false;
+  t.style.animation = 'none'; void t.offsetWidth; t.style.animation = '';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
+}
+function thumb(it, cls, noTag){
+  const wrap = h('span', {class: cls || 'g-img'});
+  const u = photoURL(it);
+  if (u) wrap.append(h('img', {src: u, alt: '', loading: 'lazy', decoding: 'async'}));
+  else wrap.innerHTML = garmentSVG(it.type, (PAL[it.color] || PAL.gris).hex, it.pattern);
+  if (it.sample && !noTag) wrap.append(h('span', {class: 'tag-sample'}, 'Ejemplo'));
+  return wrap;
+}
+function chip(label, pressed, onclick, pre, post){
+  return h('button', {class: 'chip', type: 'button', 'aria-pressed': String(!!pressed), onclick}, pre || null, label, post || null);
+}
+function dataURLtoBlob(u){
+  const i = u.indexOf(','); const head = u.slice(0, i), b64 = u.slice(i + 1);
+  const type = (head.match(/data:([^;,]+)/) || [])[1] || 'image/jpeg';
+  const bin = atob(b64); const arr = new Uint8Array(bin.length);
+  for (let k = 0; k < bin.length; k++) arr[k] = bin.charCodeAt(k);
+  return new Blob([arr], {type});
+}
+function seg(options, value, onpick, label){
+  return h('div', {class: 'seg', role: 'group', 'aria-label': label || null},
+    options.map(([v, l]) => h('button', {type: 'button', 'aria-pressed': String(v === value), onclick: () => onpick(v)}, l)));
+}
+
+let sheet = null;
+function openSheet(title, onClose){
+  closeSheet();
+  const titleEl = h('h3', null, title);
+  const body = h('div', {class: 'sheet-body'});
+  const foot = h('div', {class: 'sheet-foot'});
+  const box = h('div', {class: 'sheet'}, h('div', {class: 'sheet-head'}, titleEl, h('button', {class: 'icon-btn', type: 'button', 'aria-label': 'Cerrar', onclick: closeSheet}, icon('close'))), body, foot);
+  const wrap = h('div', {class: 'sheet-wrap', role: 'dialog', 'aria-modal': 'true', 'aria-label': title}, box);
+  wrap.addEventListener('click', e => { if (e.target === wrap) closeSheet(); });
+  document.body.append(wrap); document.body.classList.add('lock');
+  sheet = {wrap, body, foot, titleEl, onClose};
+  return sheet;
+}
+function closeSheet(){
+  if (!sheet) return;
+  const s = sheet; sheet = null; s.wrap.remove(); document.body.classList.remove('lock');
+  if (s.onClose) s.onClose();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+/* ---------- Navegación ---------- */
+const VIEWS = ['closet', 'combine', 'ideas', 'settings'];
+function setView(v, keepScroll){
+  state.view = v;
+  VIEWS.forEach(x => { $('#v-' + x).hidden = x !== v; });
+  $$('.tab[data-view]').forEach(b => { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  render();
+  if (!keepScroll) window.scrollTo(0, 0);
+}
+function render(){
+  if (state.view === 'closet') renderCloset();
+  else if (state.view === 'combine') renderCombine();
+  else if (state.view === 'ideas') renderIdeas();
+  else renderSettings();
+}
+$$('.tab[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+$('#tab-add').addEventListener('click', () => openItemSheet(null));
+
+/* ---------- Vista: Clóset ---------- */
+function renderCloset(){
+  const v = $('#v-closet'); v.innerHTML = '';
+  const items = state.items.slice().sort((a, b) => (SLOT_ORDER[TYPES[a.type].slot] - SLOT_ORDER[TYPES[b.type].slot]) || ((b.created || 0) - (a.created || 0)));
+  v.append(h('div', {class: 'v-head'},
+    h('div', null, h('p', {class: 'eyebrow'}, items.length + (items.length === 1 ? ' prenda' : ' prendas')), h('h2', null, 'Tu clóset')),
+    h('button', {class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openItemSheet(null)}, icon('camera'), 'Agregar prenda')));
+
+  if (!state.set.profile){
+    v.append(h('div', {class: 'note soft'},
+      h('h3', null, '¿Para quién es este clóset?'),
+      h('p', {class: 'small'}, 'Así te mostramos las prendas y accesorios que tienen sentido para ti. Puedes cambiarlo en Ajustes.'),
+      h('div', {class: 'row'}, ['h','m','t'].map(p => h('button', {class: 'btn btn-sm', type: 'button', onclick: () => setProfile(p)}, PROF[p])))));
+  }
+  if (hasSamples()){
+    v.append(h('div', {class: 'note'},
+      h('p', null, h('b', {style: 'font-weight:500'}, 'Estás viendo un clóset de ejemplo. '), 'Pruébalo en Combinar. Cuando guardes tu primera prenda, los ejemplos desaparecen solos.'),
+      h('div', {class: 'row'}, h('button', {class: 'link', type: 'button', onclick: async () => { await removeSamples(); renderCloset(); toast('Quitamos las prendas de ejemplo.'); }}, 'Quitar ejemplos ahora'))));
+  }
+  if (!items.length){
+    v.append(h('div', {class: 'empty'}, icon('hanger', 'big'), h('h3', null, 'Tu clóset está vacío'),
+      h('p', null, 'Toma una foto de cada prenda sobre una superficie lisa y con buena luz. Vestidor detecta el color y arma los looks por ti.'),
+      h('button', {class: 'btn btn-primary', type: 'button', onclick: () => openItemSheet(null)}, icon('camera'), 'Agregar mi primera prenda')));
+    return;
+  }
+  const counts = {}; items.forEach(it => { const s = TYPES[it.type].slot; counts[s] = (counts[s] || 0) + 1; });
+  if (state.filter !== 'all' && !counts[state.filter]) state.filter = 'all';
+  const chips = h('div', {class: 'chips', role: 'group', 'aria-label': 'Filtrar por categoría'},
+    chip('Todo', state.filter === 'all', () => { state.filter = 'all'; renderCloset(); }, null, h('span', {class: 'n'}, items.length)),
+    GROUPS.filter(([k]) => counts[k]).map(([k, l]) => chip(l, state.filter === k, () => { state.filter = k; renderCloset(); }, null, h('span', {class: 'n'}, counts[k]))));
+  v.append(chips);
+  const grid = h('div', {class: 'grid'});
+  items.filter(it => state.filter === 'all' || TYPES[it.type].slot === state.filter).forEach(it => {
+    grid.append(h('button', {class: 'g-card', type: 'button', onclick: () => openItemSheet(it)}, thumb(it), h('span', {class: 'g-name'}, itemName(it))));
+  });
+  v.append(grid);
+}
+async function setProfile(p){
+  const prev = state.set.profile; state.set.profile = p; saveSettings();
+  if (!ownCount() && hasSamples() && prev !== p){ await removeSamples(); await seedSamples(p); }
+  markDirty(); render();
+}
+
+/* ---------- Hoja: agregar / editar prenda ---------- */
+function openItemSheet(item, files){
+  const editing = !!item;
+  const queue = files ? Array.from(files) : [];
+  const d = editing
+    ? {id: item.id, type: item.type, color: item.color, pattern: item.pattern || 'liso', shift: item.shift || 0, season: item.season, name: item.name || '', created: item.created, worn: item.worn || [], sample: !!item.sample,
+       photoBlob: item.photo ? new Blob([item.photo], {type: item.photoType || 'image/jpeg'}) : null, photoChanged: false, canvas: null, detected: [], showAll: false}
+    : {id: null, type: null, color: null, pattern: 'liso', shift: 0, season: null, name: '', worn: [], photoBlob: null, photoChanged: false, canvas: null, detected: [], showAll: false};
+  let previewURL = null, deleteArmed = false, busy = false;
+  const total = { n: queue.length };
+  const sh = openSheet(editing ? 'Tu prenda' : 'Nueva prenda', () => { if (previewURL) URL.revokeObjectURL(previewURL); });
+  const fileIn = h('input', {type: 'file', accept: 'image/*', class: 'vh', id: 'sheet-file', tabindex: '-1', 'aria-hidden': 'true'});
+  if (!editing) fileIn.multiple = true;
+  const photoSec = h('div', {class: 'field'});
+  const typeSec = h('div', {class: 'field'});
+  const colorSec = h('div', {class: 'field'});
+  const patSec = h('div', {class: 'field'});
+  const styleSec = h('div', {class: 'field'});
+  const nameSec = h('div', {class: 'field'});
+  const extraSec = h('div', {class: 'field'});
+  sh.body.append(fileIn, photoSec, typeSec, colorSec, patSec, styleSec, nameSec);
+  if (editing) sh.body.prepend(extraSec);
+
+  fileIn.addEventListener('change', async () => {
+    const fs = Array.from(fileIn.files || []); fileIn.value = '';
+    if (!fs.length) return;
+    queue.push(...fs.slice(1)); total.n = Math.max(total.n, queue.length);
+    await loadFile(fs[0]);
+  });
+  async function loadFile(f){
+    busy = true; renderPhoto();
+    try {
+      const r = await processPhoto(f);
+      d.photoBlob = r.blob; d.canvas = r.canvas; d.detected = r.colors; d.photoChanged = true;
+      if (!d.color || !editing) d.color = r.colors[0] || d.color;
+    } catch (e){ toast('No pudimos leer esa imagen. Prueba con una foto JPG o PNG.'); }
+    busy = false; renderPhoto(); renderColor(); updateTitle();
+  }
+  function updateTitle(){
+    if (editing) return;
+    sh.titleEl.textContent = queue.length ? 'Nueva prenda · quedan ' + queue.length : 'Nueva prenda';
+    renderFoot();
+  }
+
+  function renderPhoto(){
+    photoSec.innerHTML = '';
+    if (busy){ photoSec.append(h('div', {class: 'photo-drop'}, h('div', {class: 'thinking'}, h('span', {class: 'spin'}), 'Leyendo la foto…'))); return; }
+    if (!d.photoBlob){
+      photoSec.append(h('label', {class: 'photo-drop', for: 'sheet-file'}, icon('camera'), h('b', null, 'Tomar o elegir foto'),
+        h('span', {class: 'small muted'}, editing ? 'Esta prenda aún no tiene foto.' : 'Sobre una superficie lisa y con buena luz. Puedes elegir varias a la vez.')));
+      if (!editing) photoSec.append(h('p', {class: 'small muted'}, 'También puedes guardarla sin foto: usaremos una ilustración.'));
+      return;
+    }
+    if (previewURL) URL.revokeObjectURL(previewURL);
+    previewURL = URL.createObjectURL(d.photoBlob);
+    const img = h('img', {src: previewURL, alt: 'Foto de la prenda'});
+    const box = h('div', {class: 'photo-prev'}, img);
+    img.addEventListener('click', async ev => {
+      if (!d.canvas){ try { d.canvas = await canvasFromBlob(d.photoBlob, 900); } catch (e){ return; } }
+      const r = img.getBoundingClientRect(); const cw = d.canvas.width, ch = d.canvas.height;
+      const scale = Math.min(r.width / cw, r.height / ch); const dw = cw * scale, dh = ch * scale;
+      const ox = (r.width - dw) / 2, oy = (r.height - dh) / 2;
+      const fx = (ev.clientX - r.left - ox) / dw, fy = (ev.clientY - r.top - oy) / dh;
+      if (fx < 0 || fx > 1 || fy < 0 || fy > 1) return;
+      const k = colorAt(d.canvas, fx, fy); if (!k) return;
+      d.color = k; renderColor();
+      $$('.pick', box).forEach(p => p.remove());
+      box.append(h('span', {class: 'pick', style: `left:${ev.clientX - r.left}px;top:${ev.clientY - r.top}px;background:${PAL[k].hex}`}));
+      toast('Color tomado: ' + PAL[k].n);
+    });
+    const tools = h('div', {class: 'photo-tools'}, h('label', {class: 'btn btn-sm', for: 'sheet-file'}, icon('camera'), 'Cambiar foto'));
+    if (state.ai.sample && state.ai.images){
+      const aiBtn = h('button', {class: 'btn btn-sm btn-ink', type: 'button'}, icon('spark'), 'Completar con IA');
+      aiBtn.addEventListener('click', async () => {
+        aiBtn.disabled = true; aiBtn.lastChild.textContent = 'Analizando…';
+        const ok = await aiAutofill(d);
+        aiBtn.disabled = false; aiBtn.lastChild.textContent = 'Completar con IA';
+        if (ok){ renderType(); renderColor(); renderPat(); renderStyle(); renderName(); toast('Listo: revisa los datos y guarda.'); }
+      });
+      tools.append(aiBtn);
+    }
+    photoSec.append(box, tools, h('p', {class: 'hint'}, 'Toca la foto para tomar el color exacto de la prenda.'));
+  }
+
+  function renderType(){
+    typeSec.innerHTML = '';
+    const prof = state.set.profile || 't';
+    const show = T => d.showAll || prof === 't' || T.sex === 'u' || (prof === 'h' ? T.sex === 'h' : T.sex === 'm') || (d.type && TYPES[d.type] === T);
+    typeSec.append(h('p', {class: 'eyebrow'}, '¿Qué es?'));
+    const wrap = h('div', {class: 'types'});
+    GROUPS.forEach(([slot, label]) => {
+      const opts = Object.keys(TYPES).filter(k => TYPES[k].slot === slot && show(TYPES[k]));
+      if (!opts.length) return;
+      wrap.append(h('div', {class: 'type-grp'}, h('p', {class: 'small muted'}, label),
+        h('div', {class: 'type-grid'}, opts.map(k => {
+          const b = h('button', {class: 'type-opt', type: 'button', 'aria-pressed': String(d.type === k), onclick: () => {
+            const prevDefault = d.type ? (TYPES[d.type].season || 'all') : null;
+            d.type = k; if (!d.season || d.season === prevDefault) d.season = TYPES[k].season || 'all';
+            typeErr = false; renderType(); renderStyle(); renderName();
+          }});
+          b.innerHTML = iconSVG(k); b.append(h('span', null, TYPES[k].pick || TYPES[k].n));
+          return b;
+        }))));
+    });
+    typeSec.append(wrap);
+    if (prof !== 't' && !d.showAll) typeSec.append(h('button', {class: 'link', type: 'button', onclick: () => { d.showAll = true; renderType(); }}, 'Ver todas las categorías'));
+    if (typeErr) typeSec.append(h('p', {class: 'err'}, 'Elige qué tipo de prenda es.'));
+  }
+  let typeErr = false, colorErr = false;
+
+  function renderColor(){
+    colorSec.innerHTML = '';
+    colorSec.append(h('p', {class: 'eyebrow'}, 'Color principal'));
+    if (d.detected.length){
+      colorSec.append(h('div', {class: 'chips flow'}, h('span', {class: 'small muted', style: 'align-self:center'}, 'En la foto:'),
+        d.detected.map(k => chip(PAL[k].n, d.color === k, () => { d.color = k; colorErr = false; renderColor(); renderName(); }, h('i', {class: 'dot', style: 'background:' + PAL[k].hex})))));
+    }
+    colorSec.append(h('div', {class: 'pal', role: 'group', 'aria-label': 'Colores'}, PALETTE.map(c =>
+      h('button', {class: 'sw' + (c.kind === 'metal' ? ' metal' : ''), type: 'button', title: c.n, 'aria-label': c.n, 'aria-pressed': String(d.color === c.k), style: 'background-color:' + c.hex,
+        onclick: () => { d.color = c.k; colorErr = false; renderColor(); renderName(); }}))));
+    colorSec.append(h('p', {class: 'small'}, d.color ? h('span', null, 'Elegido: ', h('b', {style: 'font-weight:500'}, PAL[d.color].n)) : h('span', {class: 'muted'}, 'Toca un color.')));
+    if (colorErr) colorSec.append(h('p', {class: 'err'}, 'Elige el color principal.'));
+  }
+  function renderPat(){
+    patSec.innerHTML = '';
+    patSec.append(h('p', {class: 'eyebrow'}, 'Estampado'), h('div', {class: 'chips flow'}, Object.keys(PAT).map(k => chip(PAT[k], d.pattern === k, () => { d.pattern = k; renderPat(); renderName(); }))));
+  }
+  function renderStyle(){
+    styleSec.innerHTML = '';
+    styleSec.append(h('p', {class: 'eyebrow'}, 'Estilo'), seg([[-1,'Más casual'],[0,'Normal'],[1,'Más formal']], d.shift, v => { d.shift = v; renderStyle(); }, 'Estilo'),
+      h('p', {class: 'eyebrow', style: 'margin-top:6px'}, 'Temporada'), seg([['all','Todo el año'],['hot','Calor'],['cold','Frío']], d.season || (d.type ? TYPES[d.type].season : 'all') || 'all', v => { d.season = v; renderStyle(); }, 'Temporada'));
+  }
+  function renderName(){
+    nameSec.innerHTML = '';
+    const ph = d.type && d.color ? autoName({type: d.type, color: d.color, pattern: d.pattern}) : 'Ej.: Camisa Oxford celeste';
+    const inp = h('input', {class: 'input', id: 'item-name', type: 'text', maxlength: '60', placeholder: ph, autocomplete: 'off'});
+    inp.value = d.name; inp.addEventListener('input', () => { d.name = inp.value; });
+    nameSec.append(h('label', {class: 'eyebrow', for: 'item-name', style: 'color:var(--ink)'}, 'Nombre (opcional)'), inp);
+  }
+  function renderExtra(){
+    if (!editing) return;
+    extraSec.innerHTML = '';
+    const last = (d.worn || []).slice().sort().pop();
+    extraSec.append(h('div', {class: 'row', style: 'display:flex;gap:8px;flex-wrap:wrap'},
+      h('button', {class: 'btn btn-ink btn-sm', type: 'button', onclick: () => { closeSheet(); state.fixed = item; state.combineTab = 'sug'; setView('combine'); }}, icon('spark'), 'Combinar esta prenda'),
+      h('button', {class: 'btn btn-sm', type: 'button', onclick: async () => {
+        const t = todayISO(); if (!item.worn) item.worn = []; if (!item.worn.includes(t)) item.worn.push(t); item.worn = item.worn.slice(-30); d.worn = item.worn;
+        await DB.put('items', item); renderExtra(); toast('Anotado. Mañana te sugerimos otras prendas.');
+      }}, icon('calendar'), 'Me la puse hoy')),
+      h('p', {class: 'small muted'}, last ? 'Última vez: ' + (daysAgo(last) === 0 ? 'hoy' : daysAgo(last) === 1 ? 'ayer' : 'hace ' + daysAgo(last) + ' días') + '.' : 'Aún no la has marcado como usada.'));
+  }
+  function renderFoot(){
+    sh.foot.innerHTML = '';
+    if (editing){
+      const del = h('button', {class: 'btn btn-danger' + (deleteArmed ? ' armed' : ''), type: 'button'}, deleteArmed ? 'Sí, eliminar' : 'Eliminar');
+      del.addEventListener('click', async () => {
+        if (!deleteArmed){ deleteArmed = true; renderFoot(); setTimeout(() => { if (deleteArmed && sheet === sh){ deleteArmed = false; renderFoot(); } }, 4000); return; }
+        await DB.del('items', item.id); dropURL(item.id);
+        state.items = state.items.filter(i => i.id !== item.id);
+        state.looks = state.looks.filter(l => !Object.values(l.ids).flat().includes(item.id));
+        markDirty(); closeSheet(); render(); toast('Prenda eliminada.');
+      });
+      sh.foot.append(del, h('button', {class: 'btn btn-primary', type: 'button', onclick: save}, 'Guardar cambios'));
+    } else {
+      sh.foot.append(h('button', {class: 'btn btn-primary', type: 'button', onclick: save}, queue.length ? 'Guardar y seguir' : 'Guardar prenda'));
+    }
+  }
+  async function save(){
+    if (!d.type || !d.color){
+      typeErr = !d.type; colorErr = !d.color; renderType(); renderColor();
+      (typeErr ? typeSec : colorSec).scrollIntoView({behavior: 'smooth', block: 'start'}); return;
+    }
+    const it = {id: d.id || uid(), type: d.type, color: d.color, pattern: d.pattern || 'liso', shift: d.shift || 0, season: d.season || TYPES[d.type].season || 'all',
+      name: (d.name || '').trim(), created: d.created || Date.now(), worn: d.worn || [], sample: editing ? !!d.sample : false};
+    if (d.photoBlob){
+      if (d.photoChanged){ it.photo = await blobToBuf(d.photoBlob); it.photoType = d.photoBlob.type || 'image/jpeg'; }
+      else if (item){ it.photo = item.photo; it.photoType = item.photoType; }
+    }
+    if (editing && d.photoChanged) dropURL(it.id);
+    let removed = false;
+    if (!editing && hasSamples()){ await removeSamples(); removed = true; }
+    await DB.put('items', it);
+    const idx = state.items.findIndex(x => x.id === it.id);
+    if (idx >= 0) state.items[idx] = it; else state.items.push(it);
+    if (editing && state.fixed && state.fixed.id === it.id) state.fixed = it;
+    markDirty();
+    if (!editing && queue.length){
+      toast((removed ? 'Quitamos los ejemplos. ' : '') + 'Guardada: ' + itemName(it));
+      Object.assign(d, {id: null, type: null, color: null, pattern: 'liso', shift: 0, season: null, name: '', worn: [], photoBlob: null, photoChanged: false, canvas: null, detected: []});
+      typeErr = colorErr = false;
+      renderType(); renderColor(); renderPat(); renderStyle(); renderName(); renderFoot(); sh.body.scrollTop = 0;
+      const next = queue.shift(); updateTitle(); renderFoot(); await loadFile(next); renderFoot();
+      render(); return;
+    }
+    closeSheet(); render();
+    toast(removed ? 'Guardada. Quitamos las prendas de ejemplo.' : (editing ? 'Cambios guardados.' : 'Guardada: ' + itemName(it)));
+  }
+  renderPhoto(); renderType(); renderColor(); renderPat(); renderStyle(); renderName(); renderExtra(); renderFoot();
+  if (!editing && queue.length){ const f = queue.shift(); updateTitle(); loadFile(f); }
+  if (editing && d.photoBlob) canvasFromBlob(d.photoBlob, 900).then(cv => { d.canvas = cv; }).catch(() => {});
+}
+
+/* ---------- Vista: Combinar ---------- */
+function renderCombine(){
+  const v = $('#v-combine'); v.innerHTML = '';
+  v.append(h('div', {class: 'v-head'}, h('div', null, h('p', {class: 'eyebrow', id: 'cmb-eyebrow'}, 'Combinaciones'), h('h2', null, '¿A dónde vas hoy?'))));
+  v.append(seg([['sug','Sugerencias'],['saved','Guardados (' + state.looks.length + ')']], state.combineTab, t => { state.combineTab = t; renderCombine(); }, 'Vista'));
+  if (state.combineTab === 'saved'){ renderSaved(v); return; }
+
+  v.append(h('div', {class: 'chips', role: 'group', 'aria-label': 'Ocasión'}, Object.keys(OCC).map(k => chip(OCC[k].n, state.set.occ === k, () => { state.set.occ = k; saveSettings(); state.seed = 0; renderCombine(); }))));
+  v.append(h('div', {class: 'chips', role: 'group', 'aria-label': 'Clima'}, h('span', {class: 'eyebrow', style: 'align-self:center;flex:none'}, 'Clima'),
+    Object.keys(WEA).map(k => chip(WEA[k], state.set.w === k, () => { state.set.w = k; saveSettings(); markDirty(); renderCombine(); }))));
+
+  if (state.fixed && !state.items.includes(state.fixed)) state.fixed = null;
+  if (state.fixed){
+    const f = state.fixed;
+    v.append(h('div', {class: 'note', style: 'grid-template-columns:52px 1fr auto;align-items:center;gap:12px;padding:10px 12px'},
+      thumb(f, 'g-img', true), h('div', {style: 'min-width:0'}, h('p', {class: 'eyebrow'}, 'Combinando'), h('p', {style: 'font-weight:500'}, itemName(f))),
+      h('button', {class: 'icon-btn', type: 'button', 'aria-label': 'Quitar prenda fija', onclick: () => { state.fixed = null; renderCombine(); }}, icon('close'))));
+  }
+  if (state.ai.sample) v.append(stylistBox());
+
+  const out = h('div', {class: 'looks'}, h('div', {class: 'thinking'}, h('span', {class: 'spin'}), 'Combinando tu clóset…'));
+  v.append(out);
+  const more = h('div', {style: 'display:flex;justify-content:center'});
+  v.append(more);
+  setTimeout(() => fillSuggestions(out, more), 16);
+}
+function fillSuggestions(out, more){
+  const ctx = mkCtx(state.set.occ, state.set.w);
+  out.innerHTML = '';
+  if (!state.items.length){
+    out.append(h('div', {class: 'empty'}, icon('hanger', 'big'), h('h3', null, 'Primero, tu ropa'), h('p', null, 'Agrega algunas prendas y aquí verás los looks que puedes armar.'),
+      h('button', {class: 'btn btn-primary', type: 'button', onclick: () => openItemSheet(null)}, 'Agregar prenda'))); return;
+  }
+  const f = state.fixed;
+  if (f && (formDist(f, ctx.t) > 1 || weatherPen(f, ctx.w) >= 14)){
+    const okOcc = Object.keys(OCC).filter(k => formDist(f, OCC[k].t) === 0);
+    const T = TYPES[f.type];
+    out.append(h('div', {class: 'note soft'}, h('h3', null, weatherPen(f, ctx.w) >= 14 ? `${cap(art(T))} ${tn(T)} no ${T.p ? 'van' : 'va'} con este clima` : `${cap(art(T))} ${tn(T)} no ${T.p ? 'encajan' : 'encaja'} en «${OCC[ctx.occ].n}»`),
+      h('p', {class: 'small'}, 'Prueba con una de estas ocasiones:'),
+      h('div', {class: 'chips flow'}, okOcc.map(k => chip(OCC[k].n, false, () => { state.set.occ = k; saveSettings(); renderCombine(); })))));
+    return;
+  }
+  const r = suggest(ctx, {fixed: f, limit: 6, seed: state.seed});
+  const eb = $('#cmb-eyebrow'); if (eb) eb.textContent = r.evaluated.toLocaleString('es') + ' combinaciones evaluadas';
+  if (!r.looks.length){
+    const g = poolFor(ctx, null, 0);
+    const missing = !g.shoes.length ? 'calzado' : (!g.top.length && !g.dress.length) ? 'una prenda de arriba o un vestido' : (!g.bottom.length && !g.dress.length) ? 'una prenda de abajo' : null;
+    out.append(h('div', {class: 'empty'}, icon('hanger', 'big'), h('h3', null, 'Aún no hay looks para esta ocasión'),
+      h('p', null, missing ? `Te falta ${missing} que encaje con «${OCC[ctx.occ].n}» y el clima elegido.` : 'Prueba otra ocasión o agrega más prendas.')));
+    return;
+  }
+  if (r.looks[0].nota < 6) out.append(h('div', {class: 'note soft'}, h('p', {class: 'small'}, 'Con lo que hay para esta ocasión, estas son las mejores opciones. En Ideas te decimos qué pieza sumar para mejorarlas.')));
+  r.looks.forEach(L => out.append(lookCard(L, {})));
+  more.innerHTML = '';
+  more.append(h('button', {class: 'btn', type: 'button', onclick: () => { state.seed++; renderCombine(); }}, icon('shuffle'), 'Ver otras ideas'));
+}
+
+function lookCard(L, opts){
+  const o = L.o;
+  const card = h('article', {class: 'look'});
+  const board = h('div', {class: 'board'});
+  const mkTile = (it, slot, extraCls, accIdx) => {
+    const b = h('button', {class: 'tile' + (extraCls ? ' ' + extraCls : ''), type: 'button', 'aria-label': 'Cambiar ' + itemName(it), title: itemName(it)});
+    const u = photoURL(it);
+    if (u) b.append(h('img', {src: u, alt: ''})); else b.innerHTML = garmentSVG(it.type, (PAL[it.color] || PAL.gris).hex, it.pattern);
+    if (opts.readonly) b.disabled = true;
+    else b.addEventListener('click', () => { const nl = swapIn(L, slot, accIdx); if (nl){ nl.ai = null; card.replaceWith(lookCard(nl, opts)); } });
+    return b;
+  };
+  const main = h('div', {class: 'col'}), side = h('div', {class: 'col'});
+  if (o.dress) main.append(mkTile(o.dress, 'dress', 'tall'));
+  else { main.append(mkTile(o.top, 'top')); main.append(mkTile(o.bottom, 'bottom')); }
+  if (o.outer) side.append(mkTile(o.outer, 'outer'));
+  else if (!opts.readonly && (L.ctx.w !== 'calor' || L.ctx.t >= 3) && state.items.some(it => TYPES[it.type].slot === 'outer' && formDist(it, L.ctx.t) <= 1 && weatherPen(it, L.ctx.w) < 14)){
+    const addB = h('button', {class: 'tile add', type: 'button', 'aria-label': 'Probar con una capa'}, icon('plus'), 'Capa');
+    addB.addEventListener('click', () => { const nl = swapIn(L, 'outer'); if (nl) card.replaceWith(lookCard(nl, opts)); });
+    side.append(addB);
+  }
+  if (o.shoes) side.append(mkTile(o.shoes, 'shoes'));
+  if (o.acc && o.acc.length) side.append(h('div', {class: 'accs'}, o.acc.map((a, i) => mkTile(a, 'acc', null, i))));
+  board.append(main, side);
+
+  const all = [o.outer, o.top, o.dress, o.bottom, o.shoes].concat(o.acc || []).filter(Boolean);
+  const cols = [...new Set(all.map(i => i.color))];
+  const body = h('div', {class: 'look-body'});
+  body.append(h('div', {class: 'look-top'},
+    h('div', {style: 'min-width:0'}, h('h3', {class: 'look-title'}, L.ai ? L.ai.title : L.title),
+      h('div', {class: 'swatches look-sub', 'aria-label': 'Colores: ' + cols.map(cn).join(', ')}, cols.map(k => h('i', {style: 'background:' + PAL[k].hex, title: PAL[k].n})))),
+    h('div', {class: 'nota', 'aria-label': 'Nota ' + fmt1(L.nota) + ' de 10'}, h('b', null, fmt1(L.nota)), h('span', null, notaLabel(L.nota)))));
+  if (L.ai){
+    body.append(h('p', {class: 'ai-why'}, L.ai.why));
+    if (L.ai.tips && L.ai.tips.length) body.append(h('div', {class: 'tip'}, h('p', {class: 'eyebrow'}, 'Consejo del estilista'), L.ai.tips.map(t => h('p', null, t))));
+  } else {
+    const ul = h('ul', {class: 'reasons'});
+    L.good.forEach(t => ul.append(h('li', null, icon('check'), h('span', null, t))));
+    L.warn.forEach(t => ul.append(h('li', {class: 'w'}, icon('warn'), h('span', null, t))));
+    body.append(ul);
+    if (L.tips.length) body.append(h('div', {class: 'tip'}, h('p', {class: 'eyebrow'}, 'Consejo'), L.tips.map(t => h('p', null, t))));
+  }
+  const actions = h('div', {class: 'look-actions'});
+  const saved = state.looks.find(x => x.key === L.key);
+  if (opts.savedId){
+    actions.append(h('button', {class: 'btn btn-sm', type: 'button', onclick: async () => { await DB.del('looks', opts.savedId); state.looks = state.looks.filter(x => x.id !== opts.savedId); renderCombine(); toast('Quitado de guardados.'); }}, 'Quitar de guardados'));
+  } else {
+    const sb = h('button', {class: 'btn btn-sm', type: 'button', 'aria-pressed': String(!!saved)}, icon('heart'), saved ? 'Guardado' : 'Guardar');
+    if (saved) sb.disabled = true;
+    sb.addEventListener('click', async () => {
+      const rec = {id: uid(), key: L.key, occ: L.ctx.occ, w: L.ctx.w, created: Date.now(),
+        ids: {top: o.top && o.top.id, bottom: o.bottom && o.bottom.id, dress: o.dress && o.dress.id, outer: o.outer && o.outer.id, shoes: o.shoes && o.shoes.id, acc: (o.acc || []).map(a => a.id)}};
+      await DB.put('looks', rec); state.looks.push(rec);
+      sb.disabled = true; sb.lastChild.textContent = 'Guardado';
+      const segBtn = $$('#v-combine .seg button')[1]; if (segBtn) segBtn.textContent = 'Guardados (' + state.looks.length + ')';
+      toast('Look guardado.');
+    });
+    actions.append(sb);
+  }
+  actions.append(h('button', {class: 'btn btn-sm', type: 'button', onclick: async (e) => {
+    const t = todayISO();
+    for (const it of all){ if (!it.worn) it.worn = []; if (!it.worn.includes(t)) it.worn.push(t); it.worn = it.worn.slice(-30); await DB.put('items', it); }
+    e.currentTarget.disabled = true; toast('¡A lucirlo! Mañana te propondremos otras prendas.');
+  }}, icon('calendar'), 'Me lo pongo hoy'));
+  body.append(actions);
+  if (!opts.readonly) body.append(h('p', {class: 'hint'}, 'Toca una prenda del tablero para cambiarla por otra opción.'));
+  card.append(board, body);
+  return card;
+}
+
+function swapIn(L, slot, accIdx){
+  const ctx = L.ctx; const o = Object.assign({}, L.o, {acc: (L.o.acc || []).slice()});
+  const tried = Object.assign({}, L.tried || {});
+  const key = slot === 'acc' ? 'acc' + accIdx : slot;
+  const fixed = L.fixed;
+  if (fixed && ((slot !== 'acc' && TYPES[fixed.type].slot === slot) || (slot === 'acc' && o.acc[accIdx] === fixed))){ toast('Esa es la prenda que elegiste combinar.'); return null; }
+  let set = new Set(tried[key] || []);
+  if (slot === 'acc'){
+    const cur = o.acc[accIdx]; const sub = TYPES[cur.type].sub; set.add(cur.id);
+    const others = o.acc.filter((_, i) => i !== accIdx);
+    const base = Object.assign({}, o, {acc: others});
+    const rank = s2 => state.items.filter(it => TYPES[it.type].slot === 'acc' && TYPES[it.type].sub === sub && !o.acc.includes(it) && !s2.has(it.id))
+      .map(it => ({it, v: accScore(it, base, ctx, others, null)})).filter(x => x.v > -50).sort((a, b) => b.v - a.v);
+    let opts = rank(set);
+    let next;
+    if (opts.length) next = opts[0].it;
+    else if (!set.has('none')){ next = null; set.add('none'); }
+    else { set = new Set([cur.id]); opts = rank(set); if (!opts.length){ next = null; } else next = opts[0].it; }
+    if (next){ set.add(next.id); o.acc[accIdx] = next; } else o.acc.splice(accIdx, 1);
+    if (!next) toast('Quitamos ' + art(TYPES[cur.type]) + ' ' + tn(TYPES[cur.type]) + '.');
+  } else {
+    const cur = o[slot]; set.add(cur ? cur.id : 'none');
+    const rank = s2 => {
+      const list = state.items.filter(it => TYPES[it.type].slot === slot && !s2.has(it.id) && formDist(it, ctx.t) <= 1 && weatherPen(it, ctx.w) < 14)
+        .map(it => { const o2 = Object.assign({}, o, {[slot]: it}); return {it, s: scoreCore(o2, ctx, null)}; });
+      if (slot === 'outer' && cur && !s2.has('none')) list.push({it: null, s: scoreCore(Object.assign({}, o, {outer: null}), ctx, null)});
+      return list.sort((a, b) => b.s - a.s);
+    };
+    let opts = rank(set);
+    if (!opts.length){ set = new Set([cur ? cur.id : 'none']); opts = rank(set); }
+    if (!opts.length){ toast('No hay otra opción para esta pieza con la ocasión elegida.'); return null; }
+    const pick = opts[0]; set.add(pick.it ? pick.it.id : 'none'); o[slot] = pick.it;
+    const forced = fixed && TYPES[fixed.type].slot === 'acc' ? fixed : null;
+    const accs = poolFor(ctx, forced, 0).acc;
+    addAccessories(o, ctx, accs, forced);
+  }
+  tried[key] = [...set];
+  const nl = finalize(o, ctx); nl.tried = tried; nl.fixed = fixed; return nl;
+}
+
+function renderSaved(v){
+  const list = h('div', {class: 'looks'});
+  const byId = new Map(state.items.map(i => [i.id, i]));
+  const valid = [];
+  state.looks.slice().sort((a, b) => b.created - a.created).forEach(rec => {
+    const g = id => id ? byId.get(id) || null : null;
+    const o = {top: g(rec.ids.top), bottom: g(rec.ids.bottom), dress: g(rec.ids.dress), outer: g(rec.ids.outer), shoes: g(rec.ids.shoes), acc: (rec.ids.acc || []).map(g).filter(Boolean)};
+    if (!(o.dress || (o.top && o.bottom))) return;
+    const L = finalize(o, mkCtx(rec.occ in OCC ? rec.occ : 'casual', rec.w in WEA ? rec.w : 'templado'));
+    valid.push(lookCard(L, {readonly: true, savedId: rec.id}));
+  });
+  if (!valid.length){
+    v.append(h('div', {class: 'empty'}, icon('heart', 'big'), h('h3', null, 'Sin looks guardados'), h('p', null, 'Cuando un look te guste, toca «Guardar» y lo tendrás aquí para repetirlo.'))); return;
+  }
+  valid.forEach(c => list.append(c));
+  v.append(list);
+}
+
+/* ---------- Estilista con IA (solo dentro de Claude) ---------- */
+const AI_ERR = {
+  rate_limited: 'Demasiadas consultas seguidas. Espera un momento y vuelve a intentarlo.',
+  session_expired: 'Tu sesión expiró. Vuelve a iniciar sesión en Claude.',
+  image_rejected: 'No se pudo usar esa foto. Prueba con otra.',
+  refused: 'No se pudo responder a esa petición. Prueba a describirla de otra forma.',
+  invalid_json: 'La respuesta no salió completa. Intenta de nuevo.',
+  empty_completion: 'No hubo respuesta. Intenta de nuevo.',
+  upstream_error: 'Hubo un problema de conexión. Intenta de nuevo.'
+};
+const AI_OFF = ['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed','images_unavailable'];
+function aiFail(e, quiet){
+  const code = e && e.code;
+  if (code === 'cancelled') return;
+  if (AI_OFF.includes(code)){
+    if (code === 'images_unavailable') state.ai.images = false; else state.ai.sample = null;
+    if (!quiet) toast('La IA no está disponible aquí; el motor de estilo sigue funcionando.');
+    return;
+  }
+  toast(AI_ERR[code] || AI_ERR.upstream_error);
+}
+async function aiAutofill(d){
+  if (!state.ai.sample || !d.photoBlob) return false;
+  const types = Object.keys(TYPES).map(k => k + ' = ' + (TYPES[k].pick || TYPES[k].n)).join('; ');
+  const cols = PALETTE.map(c => c.k + ' = ' + c.n).join('; ');
+  const prompt = 'Mira la foto: es una prenda o accesorio que alguien quiere registrar en su clóset digital. Identifica la pieza principal.\n' +
+    'Responde SOLO con un objeto JSON así: {"tipo":"camisa","color":"celeste","estampado":"liso","estilo":0,"temporada":"all","nombre":"Camisa Oxford celeste"}\n' +
+    '- tipo: una de estas claves: ' + types + '\n' +
+    '- color: el color principal, una de estas claves: ' + cols + '\n' +
+    '- estampado: liso, rayas, cuadros, lunares, floral, animal o estampado\n' +
+    '- estilo: -1 si es más casual de lo normal para su tipo, 1 si es más formal, 0 si es lo normal\n' +
+    '- temporada: "all", "hot" (solo para calor) o "cold" (solo para frío)\n' +
+    '- nombre: nombre corto en español, máximo 4 palabras';
+  try {
+    const r = await state.ai.sample.json(prompt, {images: [d.photoBlob], modelTier: 'quick'});
+    if (!r || typeof r !== 'object') throw {code: 'invalid_json'};
+    if (TYPES[r.tipo]){ d.type = r.tipo; d.season = TYPES[r.tipo].season || 'all'; }
+    if (PAL[r.color]) d.color = r.color;
+    if (PAT[r.estampado]) d.pattern = r.estampado;
+    if ([-1, 0, 1].includes(Number(r.estilo))) d.shift = Number(r.estilo);
+    if (SEA[r.temporada]) d.season = r.temporada;
+    if (typeof r.nombre === 'string' && r.nombre.trim()) d.name = r.nombre.trim().slice(0, 60);
+    return true;
+  } catch (e){ aiFail(e); return false; }
+}
+function stylistBox(){
+  const box = h('div', {class: 'stylist'});
+  const inp = h('input', {class: 'input', id: 'stylist-q', type: 'text', maxlength: '200', placeholder: 'Ej.: boda en la playa de día', autocomplete: 'off'});
+  const btn = h('button', {class: 'btn btn-ink', type: 'submit'}, icon('spark'), 'Preguntar');
+  const res = h('div');
+  const form = h('form', null, inp, btn);
+  let ctl = null;
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const q = inp.value.trim(); if (!q){ inp.focus(); return; }
+    if (!state.items.length){ toast('Primero agrega algunas prendas.'); return; }
+    ctl = new AbortController();
+    btn.disabled = true;
+    res.innerHTML = ''; res.append(h('div', {class: 'thinking'}, h('span', {class: 'spin'}), 'El estilista está revisando tu clóset…',
+      h('button', {class: 'link', type: 'button', onclick: () => ctl && ctl.abort()}, 'Detener')));
+    try {
+      const L = await askStylist(q, ctl.signal);
+      res.innerHTML = '';
+      if (L) res.append(lookCard(L, {})); else res.append(h('p', {class: 'small muted'}, 'El estilista no encontró una combinación válida con tu clóset para eso. Prueba a describirlo de otra forma.'));
+    } catch (err){ res.innerHTML = ''; aiFail(err); if (!state.ai.sample) box.remove(); }
+    btn.disabled = false;
+  });
+  box.append(h('div', null, h('p', {class: 'eyebrow'}, 'Estilista con IA'), h('h3', null, 'Cuéntale a dónde vas')), form, res);
+  return box;
+}
+async function askStylist(q, signal){
+  const ctx = mkCtx(state.set.occ, state.set.w);
+  const items = state.items.slice(0, 160).map(it => [it.id, itemName(it), TYPES[it.type].pick || TYPES[it.type].n, PAL[it.color].n, PAT[it.pattern || 'liso'], 'formalidad ' + itemRange(it).join('-'), SEA[seasonOf(it)]].join(' | ')).join('\n');
+  const prompt = 'Eres un estilista experto en elegancia y buen gusto. Arma UN solo look con prendas de este clóset para la situación que te describen.\n' +
+    'Situación: ' + q + '\nClima: ' + WEA[ctx.w] + '. Perfil: ' + PROF[state.set.profile || 't'] + '.\n' +
+    'Reglas: usa solo ids de la lista; elige una prenda de arriba y una de abajo, o un vestido/enterizo; agrega calzado si hay; una capa si conviene; máximo 3 accesorios. Cuida la armonía de color (máximo 3 colores, con neutros de base), la formalidad coherente y un solo estampado.\n' +
+    'Clóset (id | nombre | tipo | color | estampado | formalidad de 1 a 5 | temporada):\n' + items + '\n' +
+    'Responde SOLO con JSON: {"titulo":"máximo 5 palabras","ids":["id1","id2"],"por_que":"2 o 3 frases en español, cálidas y concretas","consejos":["1 o 2 consejos breves"]}';
+  const r = await state.ai.sample.json(prompt, {cache: false, signal});
+  if (!r || !Array.isArray(r.ids)) throw {code: 'invalid_json'};
+  const byId = new Map(state.items.map(i => [i.id, i]));
+  const o = {top: null, bottom: null, dress: null, outer: null, shoes: null, acc: []};
+  r.ids.forEach(id => { const it = byId.get(String(id)); if (!it) return; const sl = TYPES[it.type].slot; if (sl === 'acc'){ if (o.acc.length < 3 && !o.acc.includes(it)) o.acc.push(it); } else if (!o[sl]) o[sl] = it; });
+  if (o.dress){ o.top = null; o.bottom = null; }
+  if (!(o.dress || (o.top && o.bottom))) return null;
+  const L = finalize(o, ctx);
+  L.ai = {title: String(r.titulo || L.title).slice(0, 60), why: String(r.por_que || ''), tips: Array.isArray(r.consejos) ? r.consejos.map(String).slice(0, 2) : []};
+  return L;
+}
+
+/* ---------- Vista: Ideas ---------- */
+function renderIdeas(){
+  const v = $('#v-ideas'); v.innerHTML = '';
+  v.append(h('div', {class: 'v-head'}, h('div', null, h('p', {class: 'eyebrow'}, 'Análisis de tu clóset · clima ' + WEA[state.set.w].toLowerCase()), h('h2', null, 'Ideas para tu estilo'))));
+  if (state.items.length < 3){
+    v.append(h('div', {class: 'empty'}, icon('spark', 'big'), h('h3', null, 'Necesitamos más ropa'), h('p', null, 'Agrega al menos tres prendas para analizar tu clóset y recomendarte compras inteligentes.')));
+    v.append(rulesSection()); return;
+  }
+  if (state.ideas && !state.ideasDirty){ drawIdeas(v, state.ideas); return; }
+  const wait = h('div', {class: 'thinking'}, h('span', {class: 'spin'}), 'Analizando tu clóset…');
+  v.append(wait);
+  computeIdeas().then(res => { state.ideas = res; state.ideasDirty = false; if (state.view === 'ideas') { v.innerHTML = ''; v.append(h('div', {class: 'v-head'}, h('div', null, h('p', {class: 'eyebrow'}, 'Análisis de tu clóset · clima ' + WEA[state.set.w].toLowerCase()), h('h2', null, 'Ideas para tu estilo')))); drawIdeas(v, res); } });
+}
+async function computeIdeas(){
+  const occs = ['casual','oficina','cita','fiesta','formal'];
+  const w = state.set.w; const per = {}; let total = 0;
+  for (const occ of occs){ per[occ] = countGood(mkCtx(occ, w), null, 400); total += per[occ]; await tick(); }
+  const prof = state.set.profile || 't';
+  const cands = (ESS[prof] || ESS.t).filter(c => !state.items.some(it => it.type === c[0] && (it.color === c[1] || dE(PAL[it.color].lab, PAL[c[1]].lab) < 12)));
+  const gains = [];
+  for (const c of cands){
+    const it = {id: 'v_' + c[0] + '_' + c[1], type: c[0], color: c[1], pattern: 'liso', shift: 0, season: TYPES[c[0]].season || 'all', virtual: true};
+    let g = 0; for (const occ of occs) g += countGood(mkCtx(occ, w), it, 160);
+    gains.push({c, it, g}); await tick();
+  }
+  gains.sort((a, b) => b.g - a.g);
+  const lonely = [];
+  const own = state.items.filter(i => !i.sample);
+  const pool = (own.length ? own : state.items).filter(i => TYPES[i.type].slot !== 'acc').slice(0, 40);
+  for (const it of pool){
+    let n = 0;
+    for (const occ of occs){ if (formDist(it, OCC[occ].t) > 1) continue; n += countGood(mkCtx(occ, w), it, 60); if (n) break; }
+    if (!n) lonely.push(it);
+    await tick();
+  }
+  return {per, total, gains: gains.filter(x => x.g > 0).slice(0, 5), lonely: lonely.slice(0, 8)};
+}
+function drawIdeas(v, res){
+  const sec1 = h('div', {class: 'sec'},
+    h('div', {class: 'stat'}, h('span', {class: 'big'}, res.total.toLocaleString('es')), h('p', null, 'looks bien combinados (nota 7 o más) puedes armar hoy con lo que tienes.')),
+    h('div', {class: 'occ-tbl'}, Object.keys(res.per).map(k => h('div', null, h('b', null, res.per[k].toLocaleString('es')), h('span', null, OCC[k].n)))));
+  v.append(sec1);
+
+  const sec2 = h('div', {class: 'sec'}, h('h2', null, 'Compras que más te rinden'),
+    h('p', {class: 'muted small'}, 'Simulamos cada básico en tu clóset y contamos cuántos looks nuevos abriría. Compra pocas cosas, pero que sumen.'));
+  if (res.gains.length){
+    sec2.append(h('div', {class: 'buys'}, res.gains.map(x => h('div', {class: 'buy'}, thumb(x.it, 'g-img'),
+      h('div', {style: 'min-width:0'}, h('b', null, autoName(x.it)), h('p', null, x.c[2])),
+      h('span', {class: 'badge'}, '+' + x.g + (x.g === 1 ? ' look' : ' looks'))))));
+  } else sec2.append(h('div', {class: 'note'}, h('p', {class: 'small'}, 'Tu clóset ya tiene los básicos que más rinden. Para crecer, busca piezas con personalidad que combinen con tus neutros.')));
+  v.append(sec2);
+
+  const counts = {}; state.items.forEach(i => { counts[i.color] = (counts[i.color] || 0) + 1; });
+  const tot = state.items.length;
+  const neutral = state.items.filter(i => !isChromK(i.color)).length / tot;
+  const order = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+  const msg = neutral >= 0.7 ? 'Tu clóset es mayormente neutro: muy versátil. Una o dos piezas de color le darían más personalidad.'
+    : neutral >= 0.4 ? 'Buen equilibrio entre neutros y color: tienes base y personalidad.'
+    : 'Tienes muchos colores. Suma neutros (blanco, negro, marino, beige) para poder combinarlos entre sí.';
+  v.append(h('div', {class: 'sec'}, h('h2', null, 'Tu paleta'), h('p', null, msg),
+    h('div', {class: 'palette-bar', role: 'img', 'aria-label': 'Proporción de colores en tu clóset'}, order.map(k => h('i', {style: `flex:${counts[k]};background:${PAL[k].hex}`, title: PAL[k].n + ': ' + counts[k]}))),
+    h('div', {class: 'legend'}, order.slice(0, 8).map(k => h('span', null, h('i', {class: 'dot', style: 'background:' + PAL[k].hex}), PAL[k].n + ' · ' + counts[k])))));
+
+  if (res.lonely.length){
+    v.append(h('div', {class: 'sec'}, h('h2', null, 'Piden compañía'),
+      h('p', {class: 'muted small'}, 'Estas prendas todavía no forman ningún look bien combinado con tu clima. Suele ayudar sumar neutros o una capa.'),
+      h('div', {class: 'mini-grid'}, res.lonely.map(it => h('button', {class: 'g-card', type: 'button', onclick: () => openItemSheet(it)}, thumb(it), h('span', {class: 'g-name'}, itemName(it)))))));
+  }
+  v.append(rulesSection());
+}
+function rulesSection(){
+  const R = [
+    ['Base neutra, un acento', 'Máximo tres colores por look. Negro, blanco, gris, marino, beige, camel y mezclilla no cuentan: son el lienzo.', ['negro','blanco','marino','azul']],
+    ['Un solo protagonista', 'Un estampado a la vez; lo demás, liso. Si mezclas, que uno sea grande y el otro fino.', null],
+    ['Cinturón igual a zapatos', 'Mismo tono de cuero: negro con negro, café con café. Es el detalle que delata el buen gusto.', ['cafe','cafe','negro','negro']],
+    ['Formalidad pareja', 'Todas las piezas al mismo nivel. La excepción elegante: un blazer sobre algo casual.', null],
+    ['Contraste o tono sobre tono', 'Juega con claro y oscuro, o ve monocromo. Evita tonos casi iguales, como negro con marino.', ['gris_claro','carbon','camel','cafe']],
+    ['Zapatos más oscuros', 'En lo formal, el zapato va más oscuro que el pantalón.', null],
+    ['Un solo metal', 'Dorado o plateado, no ambos en joyas y hebillas.', ['dorado','plateado']],
+    ['Menos es más', 'Antes de salir, quítate un accesorio. Y recuerda: la talla correcta luce más que la marca.', null]
+  ];
+  return h('div', {class: 'sec'}, h('h2', null, 'Reglas de oro'), h('div', {class: 'rules'}, R.map(r => h('div', {class: 'rule'},
+    r[2] ? h('div', {class: 'sws', 'aria-hidden': 'true'}, r[2].map(k => h('i', {style: 'background:' + PAL[k].hex}))) : null,
+    h('h3', null, r[0]), h('p', null, r[1])))));
+}
+
+/* ---------- Vista: Ajustes ---------- */
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+function renderSettings(){
+  const v = $('#v-settings'); v.innerHTML = '';
+  v.append(h('div', {class: 'v-head'}, h('div', null, h('p', {class: 'eyebrow'}, 'Preferencias'), h('h2', null, 'Ajustes'))));
+  v.append(h('div', {class: 'sec'}, h('h2', null, 'Para quién'), h('p', {class: 'muted small'}, 'Ajusta las categorías, los ejemplos y las recomendaciones de compra.'),
+    seg([['h','Hombre'],['m','Mujer'],['t','Ambos']], state.set.profile || 't', p => setProfile(p).then(renderSettings), 'Perfil')));
+
+  const inst = h('div', {class: 'sec'}, h('h2', null, 'Instalar en tu teléfono'));
+  if (isStandalone()) inst.append(h('p', null, 'Vestidor ya está instalada en este dispositivo.'));
+  else {
+    if (!PWA) inst.append(h('p', {class: 'small muted'}, 'Esta es la versión de prueba. Para instalarla como app, abre la versión publicada de Vestidor en el navegador de tu teléfono y sigue estos pasos.'));
+    if (state.installEvt) inst.append(h('button', {class: 'btn btn-primary', type: 'button', onclick: async () => { const e = state.installEvt; state.installEvt = null; e.prompt(); try { await e.userChoice; } catch (x){} renderSettings(); }}, icon('download'), 'Instalar Vestidor'));
+    inst.append(h('div', {class: 'note'}, h('p', {class: 'eyebrow'}, 'iPhone'), h('ol', {class: 'steps'},
+      h('li', null, 'Abre Vestidor en Safari.'), h('li', null, 'Toca el botón Compartir (el cuadro con la flecha hacia arriba).'),
+      h('li', null, 'Elige «Agregar a pantalla de inicio» y toca «Agregar».'), h('li', null, 'Abre Vestidor desde su ícono: funciona a pantalla completa y sin conexión.'))));
+    inst.append(h('div', {class: 'note'}, h('p', {class: 'eyebrow'}, 'Android'), h('ol', {class: 'steps'},
+      h('li', null, 'Abre Vestidor en Chrome.'), h('li', null, 'Toca el menú ⋮ y elige «Instalar aplicación» o «Agregar a la pantalla principal».'))));
+  }
+  v.append(inst);
+
+  const bk = h('div', {class: 'sec'}, h('h2', null, 'Respaldo'),
+    h('p', {class: 'muted small'}, 'Tus fotos se guardan solo en este dispositivo. Exporta una copia para pasarla a otro teléfono o por si cambias de equipo.'),
+    h('div', {style: 'display:flex;gap:8px;flex-wrap:wrap'},
+      h('button', {class: 'btn', type: 'button', onclick: exportBackup}, icon('download'), 'Exportar copia'),
+      h('button', {class: 'btn', type: 'button', onclick: () => $('#import-input').click()}, icon('upload'), 'Importar copia')));
+  v.append(bk);
+
+  const ex = h('div', {class: 'sec'}, h('h2', null, 'Ejemplos'));
+  if (hasSamples()) ex.append(h('button', {class: 'btn', type: 'button', onclick: async () => { await removeSamples(); renderSettings(); toast('Quitamos las prendas de ejemplo.'); }}, 'Quitar prendas de ejemplo'));
+  else ex.append(h('p', {class: 'muted small'}, 'Carga un clóset de ejemplo para ver cómo funciona; se borra al guardar tu primera prenda nueva.'),
+    h('button', {class: 'btn', type: 'button', onclick: async () => { await seedSamples(state.set.profile || 't'); renderSettings(); toast('Clóset de ejemplo cargado.'); }}, 'Cargar ejemplos'));
+  v.append(ex);
+
+  let armed = false;
+  const delBtn = h('button', {class: 'btn btn-danger', type: 'button'}, 'Borrar todo');
+  delBtn.addEventListener('click', async () => {
+    if (!armed){ armed = true; delBtn.classList.add('armed'); delBtn.textContent = 'Sí, borrar todas mis prendas y looks'; setTimeout(() => { if (armed){ armed = false; delBtn.classList.remove('armed'); delBtn.textContent = 'Borrar todo'; } }, 5000); return; }
+    await DB.clear('items'); await DB.clear('looks'); state.urls.forEach(u => URL.revokeObjectURL(u)); state.urls.clear();
+    state.items = []; state.looks = []; state.fixed = null; markDirty(); renderSettings(); toast('Se borró todo.');
+  });
+  v.append(h('div', {class: 'sec'}, h('h2', null, 'Borrar datos'), h('p', {class: 'muted small'}, 'Elimina todas tus prendas, fotos y looks guardados de este dispositivo. No se puede deshacer.'), h('div', null, delBtn)));
+  v.append(h('p', {class: 'small muted'}, (DB.ok ? 'Guardado en este dispositivo.' : 'Este navegador no permite guardar datos; se perderán al cerrar.') + ' Vestidor funciona sin conexión y no envía tus fotos a ningún servidor' + (state.ai.sample ? ', salvo cuando tú usas el estilista con IA.' : '.')));
+}
+
+async function exportBackup(){
+  const toDataURL = (buf, type) => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => res(null); r.readAsDataURL(new Blob([buf], {type: type || 'image/jpeg'})); });
+  const own = state.items.filter(i => !i.sample);
+  if (!own.length){ toast('Aún no tienes prendas propias para respaldar.'); return; }
+  const items = [];
+  for (const it of own){ const c = Object.assign({}, it); delete c.photo; c.photo = it.photo ? await toDataURL(it.photo, it.photoType) : null; items.push(c); }
+  const data = JSON.stringify({app: 'vestidor', version: 1, exported: new Date().toISOString(), profile: state.set.profile, items, looks: state.looks});
+  const filename = 'vestidor-respaldo-' + todayISO() + '.json';
+  if (state.ai.downloads){
+    try { await state.ai.downloads.save({filename, data}); toast('Copia lista.'); return; }
+    catch (e){ if (e && e.code === 'declined') return; }
+  }
+  try {
+    const file = new File([data], filename, {type: 'application/json'});
+    if (navigator.canShare && navigator.canShare({files: [file]})){ await navigator.share({files: [file], title: 'Respaldo de Vestidor'}); return; }
+  } catch (e){ if (e && e.name === 'AbortError') return; }
+  const url = URL.createObjectURL(new Blob([data], {type: 'application/json'}));
+  const a = h('a', {href: url, download: filename}); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+$('#import-input').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (!data || data.app !== 'vestidor' || !Array.isArray(data.items)) throw new Error('formato');
+    let n = 0;
+    const hadSamples = hasSamples();
+    if (hadSamples) await removeSamples();
+    for (const raw of data.items){
+      if (!raw || !TYPES[raw.type] || !PAL[raw.color]) continue;
+      const it = {id: String(raw.id || uid()), type: raw.type, color: raw.color, pattern: PAT[raw.pattern] ? raw.pattern : 'liso', shift: [-1,0,1].includes(raw.shift) ? raw.shift : 0,
+        season: SEA[raw.season] ? raw.season : (TYPES[raw.type].season || 'all'), name: typeof raw.name === 'string' ? raw.name.slice(0, 60) : '', created: Number(raw.created) || Date.now(),
+        worn: Array.isArray(raw.worn) ? raw.worn.filter(x => /^\d{4}-\d\d-\d\d$/.test(x)).slice(-30) : [], sample: false};
+      if (typeof raw.photo === 'string' && raw.photo.startsWith('data:image/')){ const b = dataURLtoBlob(raw.photo); it.photo = await blobToBuf(b); it.photoType = b.type || 'image/jpeg'; }
+      dropURL(it.id); await DB.put('items', it);
+      const i = state.items.findIndex(x => x.id === it.id); if (i >= 0) state.items[i] = it; else state.items.push(it);
+      n++;
+    }
+    if (Array.isArray(data.looks)) for (const l of data.looks){ if (l && l.id && l.ids){ await DB.put('looks', l); if (!state.looks.some(x => x.id === l.id)) state.looks.push(l); } }
+    if (data.profile && PROF[data.profile] && !state.set.profile){ state.set.profile = data.profile; saveSettings(); }
+    markDirty(); render(); toast('Importadas ' + n + ' prendas.');
+  } catch (err){ toast('Ese archivo no es una copia de Vestidor válida.'); }
+});
+
+/* ---------- Arranque ---------- */
+async function initAI(){
+  if (PWA || !window.claude || typeof window.claude.use !== 'function') return;
+  try {
+    const s = await window.claude.use('sample');
+    if (typeof s === 'function'){
+      state.ai.sample = s;
+      try { const lim = await s.limits(); state.ai.images = !!(lim && lim.images); } catch (e){}
+      if (state.view === 'combine') renderCombine();
+    }
+  } catch (e){}
+  try { const d = await window.claude.use('downloads'); if (d) state.ai.downloads = d; } catch (e){}
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); state.installEvt = e; if (state.view === 'settings') renderSettings(); });
+
+async function boot(){
+  const fecha = new Intl.DateTimeFormat('es', {weekday: 'long', day: 'numeric', month: 'long'}).format(new Date());
+  $('#issue').textContent = cap(fecha);
+  await DB.open();
+  state.items = (await DB.all('items')).filter(it => it && TYPES[it.type] && PAL[it.color]);
+  state.looks = (await DB.all('looks')).filter(l => l && l.ids);
+  if (!state.items.length && !state.set.seeded) await seedSamples(state.set.profile || 't');
+  if (!OCC[state.set.occ]) state.set.occ = 'casual';
+  if (!WEA[state.set.w]) state.set.w = 'calor';
+  const hv = (location.hash || '').slice(1);
+  const map = {closet: 'closet', combinar: 'combine', ideas: 'ideas', ajustes: 'settings'};
+  setView(map[hv] || 'closet', true);
+  initAI();
+  if (PWA && 'serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(() => {}); }
+  if (navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(() => {}); }
+}
+boot();
+})();
+</script>
+</body>
+</html>
